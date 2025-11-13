@@ -1,27 +1,201 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Pencil, Trash2, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { loadReports, deleteReport, NCARReport, saveReport } from '@/lib/report-storage';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+
+const ReportRow: React.FC<{ report: NCARReport, onDelete: (id: string) => void, onUpdate: (report: NCARReport) => void }> = ({ report, onDelete, onUpdate }) => {
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [newName, setNewName] = React.useState(report.name);
+
+  const handleSaveName = () => {
+    if (newName.trim() && newName !== report.name) {
+      onUpdate({ ...report, name: newName.trim() });
+      toast.success("Report name updated.");
+    }
+    setIsEditing(false);
+  };
+
+  const getStatusBadge = (status: NCARReport['status']) => {
+    switch (status) {
+      case 'Draft':
+        return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">Draft</span>;
+      case 'Section1Locked':
+        return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">In Progress</span>;
+      case 'Verified':
+        return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Verified</span>;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <TableRow>
+      <TableCell className="font-medium">
+        {isEditing ? (
+          <Input 
+            value={newName} 
+            onChange={(e) => setNewName(e.target.value)} 
+            onBlur={handleSaveName}
+            onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+            autoFocus
+          />
+        ) : (
+          <div className="flex items-center space-x-2">
+            <span>{report.name}</span>
+            <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)}>
+              <Pencil className="h-3 w-3 text-muted-foreground" />
+            </Button>
+          </div>
+        )}
+      </TableCell>
+      <TableCell>{getStatusBadge(report.status)}</TableCell>
+      <TableCell>{new Date(report.createdAt).toLocaleDateString()}</TableCell>
+      <TableCell className="text-right space-x-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => navigate(`/admin/report/${report.id}`)}
+        >
+          <FileText className="mr-2 h-4 w-4" /> View/Edit
+        </Button>
+        <Button 
+          variant="destructive" 
+          size="sm" 
+          onClick={() => onDelete(report.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+};
+
 
 const AdminDashboard = () => {
-  // This will eventually hold the list of reports (Step 1. Admin Landing Page)
+  const navigate = useNavigate();
+  const [reports, setReports] = React.useState<NCARReport[]>([]);
+  const [newReportName, setNewReportName] = React.useState('');
+
+  const refreshReports = () => {
+    // Sort by creation date descending
+    setReports(loadReports().sort((a, b) => b.createdAt - a.createdAt));
+  };
+
+  React.useEffect(() => {
+    refreshReports();
+  }, []);
+
+  const handleCreateReport = () => {
+    if (!newReportName.trim()) {
+      toast.error("Please enter a name for the new report.");
+      return;
+    }
+
+    const now = Date.now();
+    const newReport: NCARReport = {
+      id: now.toString(),
+      name: newReportName.trim(),
+      status: 'Draft',
+      createdAt: now,
+      updatedAt: now,
+      section1: {
+        departmentId: '',
+        clauseId: '',
+        iqrNumberId: '',
+        dateRaised: new Date().toISOString().split('T')[0],
+        nonConformityDetails: '',
+        adminAcknowledged: false,
+        adminSentMail: false,
+      },
+      collaborators: '',
+      section2: { correction: '', dateCompleted: '' },
+      section3: { correctiveAction: '', dateCompleted: '' },
+      section4: { rootCauseAnalysis: '', dateCompleted: '' },
+      section5: { verificationDetails: '', dateVerified: '' },
+    };
+
+    saveReport(newReport);
+    setNewReportName('');
+    refreshReports();
+    toast.success(`Report '${newReport.name}' created successfully.`);
+    navigate(`/admin/report/${newReport.id}`);
+  };
+
+  const handleDeleteReport = (id: string) => {
+    deleteReport(id);
+    refreshReports();
+    toast.success("Report deleted successfully.");
+  };
+
+  const handleUpdateReport = (updatedReport: NCARReport) => {
+    saveReport(updatedReport);
+    refreshReports();
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Admin Report Management</h1>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Report
-        </Button>
       </div>
       
-      <p className="text-lg text-muted-foreground">
-        Use the sidebar to complete initial setup (Departments, Clause ID, IQR Number) before creating reports.
-      </p>
-      
-      {/* Report List will go here */}
-      <div className="mt-8 p-4 border rounded-lg bg-card">
-        <h2 className="text-xl font-semibold mb-4">Existing Reports (Coming Soon)</h2>
-        <p className="text-muted-foreground">Report listing and management features will be implemented here in the next step.</p>
-      </div>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Create New Report</CardTitle>
+        </CardHeader>
+        <CardContent className="flex space-x-2">
+          <Input
+            placeholder="Enter New Report Name (e.g., NCAR-2024-001)"
+            value={newReportName}
+            onChange={(e) => setNewReportName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleCreateReport()}
+          />
+          <Button onClick={handleCreateReport}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add New Report
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Existing Reports ({reports.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Report Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Created Date</TableHead>
+                <TableHead className="w-[200px] text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {reports.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    No reports created yet.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                reports.map((report) => (
+                  <ReportRow 
+                    key={report.id} 
+                    report={report} 
+                    onDelete={handleDeleteReport} 
+                    onUpdate={handleUpdateReport}
+                  />
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };

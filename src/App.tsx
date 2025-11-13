@@ -11,6 +11,7 @@ import DepartmentsSetup from "./pages/admin/DepartmentsSetup";
 import ClauseIDSetup from "./pages/admin/ClauseIDSetup";
 import IQRNumberSetup from "./pages/admin/IQRNumberSetup";
 import UserDashboard from "./pages/user/UserDashboard";
+import NCARReportForm from "./pages/NCARReportForm";
 
 const queryClient = new QueryClient();
 
@@ -29,10 +30,12 @@ const App = () => (
             <Route path="setup/departments" element={<DepartmentsSetup />} />
             <Route path="setup/clause-id" element={<ClauseIDSetup />} />
             <Route path="setup/iqr-number" element={<IQRNumberSetup />} />
+            <Route path="report/:reportId" element={<NCARReportForm />} />
           </Route>
 
           {/* User Routes */}
           <Route path="/user/dashboard" element={<UserDashboard />} />
+          <Route path="/user/report/:reportId" element={<NCARReportForm />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
