@@ -22,6 +22,7 @@ export type NCARReport = {
     nonConformityDetails: string;
     adminAcknowledged: boolean;
     adminSentMail: boolean;
+    attachments: string[]; // Added attachments field
   };
 
   // Collaborators (User input field after Section 1)

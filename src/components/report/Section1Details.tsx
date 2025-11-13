@@ -8,6 +8,7 @@ import { Check, Mail, Lock } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
 import { toast } from 'sonner';
+import AttachmentUploader from '@/components/AttachmentUploader';
 
 interface Section1DetailsProps {
   report: NCARReport;
@@ -21,17 +22,8 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
   const clauseIDs = getClauseIDs();
   const iqrNumbers = getIQRNumbers();
 
-  // Helper to update fields that are now in the root of the report object
-  const handleRootInputChange = (field: keyof NCARReport, value: string) => {
-    if (!isEditable) return;
-    onUpdate({
-      ...report,
-      [field]: value,
-    });
-  };
-
   // Helper to update fields that remain in section1
-  const handleSection1InputChange = (field: keyof NCARReport['section1'], value: string | boolean) => {
+  const handleSection1InputChange = (field: keyof NCARReport['section1'], value: string | boolean | string[]) => {
     if (!isEditable) return;
     onUpdate({
       ...report,
@@ -140,6 +132,13 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
           className={!isEditable ? 'bg-muted/50 min-h-[100px]' : 'min-h-[100px]'}
         />
       </div>
+
+      {/* Attachments */}
+      <AttachmentUploader
+        attachments={report.section1.attachments}
+        onAttachmentsChange={(newAttachments) => handleSection1InputChange('attachments', newAttachments)}
+        isEditable={isEditable}
+      />
 
       {/* Admin Actions (Locking Mechanism) */}
       {isAdmin && report.status === 'Draft' && (
