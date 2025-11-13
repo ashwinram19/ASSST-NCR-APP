@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getReportById, saveReport, NCARReport } from '@/lib/report-storage';
+import { getReportById, saveReport, NCARReport, ReportStatus } from '@/lib/report-storage';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -61,7 +61,7 @@ const NCARReportForm = () => {
 
     const verifiedReport = {
       ...report,
-      status: 'Verified',
+      status: 'Verified' as ReportStatus, // <-- Type assertion applied here
       section5: {
         ...report.section5,
         dateVerified: new Date().toISOString().split('T')[0],

@@ -11,9 +11,11 @@ import { toast } from 'sonner';
 interface NewReportFormProps {
   onCreate: (reportData: {
     name: string;
-    departmentId: string;
-    clauseId: string;
-    iqrNumberId: string;
+    section1: {
+      departmentId: string;
+      clauseId: string;
+      iqrNumberId: string;
+    }
   }) => void;
 }
 
@@ -35,9 +37,11 @@ const NewReportForm: React.FC<NewReportFormProps> = ({ onCreate }) => {
 
     onCreate({
       name: name.trim(),
-      departmentId,
-      clauseId,
-      iqrNumberId,
+      section1: {
+        departmentId,
+        clauseId,
+        iqrNumberId,
+      }
     });
 
     // Reset form

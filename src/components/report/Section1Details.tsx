@@ -74,7 +74,17 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         {/* Department */}
         <div className="space-y-2">
           <Label>Department</Label>
-          <Input readOnly value={findNameById(report.departmentId, departments)} className="bg-muted/50" />
+          <Input readOnly value={findNameById(report.section1.departmentId, departments)} className="bg-muted/50" />
+        </div>
+        {/* Clause ID */}
+        <div className="space-y-2">
+          <Label>Clause ID</Label>
+          <Input readOnly value={findNameById(report.section1.clauseId, clauseIDs)} className="bg-muted/50" />
+        </div>
+        {/* IQR Number */}
+        <div className="space-y-2">
+          <Label>IQR Number</Label>
+          <Input readOnly value={findNameById(report.section1.iqrNumberId, iqrNumbers)} className="bg-muted/50" />
         </div>
       </div>
 

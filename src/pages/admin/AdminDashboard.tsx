@@ -67,9 +67,9 @@ const ReportRow: React.FC<{
         )}
       </TableCell>
       <TableCell>{getStatusBadge(report.status)}</TableCell>
-      <TableCell>{findNameById(report.departmentId, departments)}</TableCell>
-      <TableCell>{findNameById(report.clauseId, clauseIDs)}</TableCell>
-      <TableCell>{findNameById(report.iqrNumberId, iqrNumbers)}</TableCell>
+      <TableCell>{findNameById(report.section1.departmentId, departments)}</TableCell>
+      <TableCell>{findNameById(report.section1.clauseId, clauseIDs)}</TableCell>
+      <TableCell>{findNameById(report.section1.iqrNumberId, iqrNumbers)}</TableCell>
       <TableCell>{new Date(report.createdAt).toLocaleDateString()}</TableCell>
       <TableCell className="text-right space-x-2">
         <Button 
@@ -118,9 +118,11 @@ const AdminDashboard = () => {
 
   const handleCreateReport = (reportData: {
     name: string;
-    departmentId: string;
-    clauseId: string;
-    iqrNumberId: string;
+    section1: {
+      departmentId: string;
+      clauseId: string;
+      iqrNumberId: string;
+    }
   }) => {
     const now = Date.now();
     const newReport: NCARReport = {
@@ -129,19 +131,17 @@ const AdminDashboard = () => {
       createdAt: now,
       updatedAt: now,
       
-      // Identification fields from form
+      // Identification fields are now part of section1
       name: reportData.name,
-      departmentId: reportData.departmentId,
-      clauseId: reportData.clauseId,
-      iqrNumberId: reportData.iqrNumberId,
       
       // Section 1: Non-Conformity Details (Admin Only)
       section1: {
+        ...reportData.section1, // departmentId, clauseId, iqrNumberId
         nonConformityDetails: '',
         adminAcknowledged: false,
         adminSentMail: false,
         
-        // Initializing MOVED fields
+        // Initializing other fields
         dateRaised: new Date().toISOString().split('T')[0], // Default to today
         qmsClauseReference: '', 
         associatedRisk: '',      
