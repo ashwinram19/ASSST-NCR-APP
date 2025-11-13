@@ -1,12 +1,13 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Pencil, Trash2, FileText } from 'lucide-react';
+import { Pencil, Trash2, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { loadReports, deleteReport, NCARReport, saveReport } from '@/lib/report-storage';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import NewReportForm from '@/components/NewReportForm';
 
 const ReportRow: React.FC<{ report: NCARReport, onDelete: (id: string) => void, onUpdate: (report: NCARReport) => void }> = ({ report, onDelete, onUpdate }) => {
   const navigate = useNavigate();
@@ -80,7 +81,6 @@ const ReportRow: React.FC<{ report: NCARReport, onDelete: (id: string) => void, 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [reports, setReports] = React.useState<NCARReport[]>([]);
-  const [newReportName, setNewReportName] = React.useState('');
 
   const refreshReports = () => {
     // Sort by creation date descending
@@ -91,28 +91,36 @@ const AdminDashboard = () => {
     refreshReports();
   }, []);
 
-  const handleCreateReport = () => {
-    if (!newReportName.trim()) {
-      toast.error("Please enter a name for the new report.");
-      return;
-    }
-
+  const handleCreateReport = (reportData: {
+    name: string;
+    departmentId: string;
+    clauseId: string;
+    iqrNumberId: string;
+    dateRaised: string;
+    qmsClauseReference: string;
+    associatedRisk: string;
+    personResponsible: string;
+  }) => {
     const now = Date.now();
     const newReport: NCARReport = {
       id: now.toString(),
-      name: newReportName.trim(),
       status: 'Draft',
       createdAt: now,
       updatedAt: now,
+      
+      // Identification fields from form
+      name: reportData.name,
+      departmentId: reportData.departmentId,
+      clauseId: reportData.clauseId,
+      iqrNumberId: reportData.iqrNumberId,
+      dateRaised: reportData.dateRaised,
+      qmsClauseReference: reportData.qmsClauseReference, 
+      associatedRisk: reportData.associatedRisk,      
+      personResponsible: reportData.personResponsible,   
+      
+      // Section 1 (only details and admin actions remain)
       section1: {
-        departmentId: '',
-        clauseId: '',
-        iqrNumberId: '',
-        dateRaised: new Date().toISOString().split('T')[0],
         nonConformityDetails: '',
-        qmsClauseReference: '', 
-        associatedRisk: '',      
-        personResponsible: '',   
         adminAcknowledged: false,
         adminSentMail: false,
       },
@@ -124,7 +132,6 @@ const AdminDashboard = () => {
     };
 
     saveReport(newReport);
-    setNewReportName('');
     refreshReports();
     toast.success(`Report '${newReport.name}' created successfully.`);
     navigate(`/admin/report/${newReport.id}`);
@@ -147,22 +154,7 @@ const AdminDashboard = () => {
         <h1 className="text-3xl font-bold">Admin Report Management</h1>
       </div>
       
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Create New Report</CardTitle>
-        </CardHeader>
-        <CardContent className="flex space-x-2">
-          <Input
-            placeholder="Enter New Report Name (e.g., NCAR-2024-001)"
-            value={newReportName}
-            onChange={(e) => setNewReportName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleCreateReport()}
-          />
-          <Button onClick={handleCreateReport}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add New Report
-          </Button>
-        </CardContent>
-      </Card>
+      <NewReportForm onCreate={handleCreateReport} />
 
       <Card>
         <CardHeader>

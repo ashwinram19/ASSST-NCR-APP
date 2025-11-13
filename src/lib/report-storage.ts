@@ -7,18 +7,19 @@ export type NCARReport = {
   createdAt: number;
   updatedAt: number;
   
+  // Report Identification Fields (Moved from Section 1)
+  departmentId: string;
+  clauseId: string;
+  iqrNumberId: string;
+  dateRaised: string;
+  qmsClauseReference: string;
+  associatedRisk: string;
+  personResponsible: string;
+  // End Report Identification Fields
+
   // Section 1: Non-Conformity Details (Admin Only)
   section1: {
-    departmentId: string;
-    clauseId: string;
-    iqrNumberId: string;
-    dateRaised: string;
     nonConformityDetails: string;
-    // New fields
-    qmsClauseReference: string;
-    associatedRisk: string;
-    personResponsible: string;
-    // End New fields
     adminAcknowledged: boolean;
     adminSentMail: boolean;
   };

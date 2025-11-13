@@ -21,7 +21,17 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
   const clauseIDs = getClauseIDs();
   const iqrNumbers = getIQRNumbers();
 
-  const handleInputChange = (field: keyof NCARReport['section1'], value: string | boolean) => {
+  // Helper to update fields that are now in the root of the report object
+  const handleRootInputChange = (field: keyof NCARReport, value: string) => {
+    if (!isEditable) return;
+    onUpdate({
+      ...report,
+      [field]: value,
+    });
+  };
+
+  // Helper to update fields that remain in section1
+  const handleSection1InputChange = (field: keyof NCARReport['section1'], value: string | boolean) => {
     if (!isEditable) return;
     onUpdate({
       ...report,
@@ -40,13 +50,14 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
       [field]: true,
     };
 
-    // Check if required fields are filled before attempting to lock
-    if (!updatedSection1.departmentId || !updatedSection1.clauseId || !updatedSection1.iqrNumberId || !updatedSection1.nonConformityDetails) {
-        toast.error("Please fill all identification and non-conformity details before locking Section 1.");
+    // Check if required fields (now root-level) and nonConformityDetails are filled before attempting to lock
+    if (!report.departmentId || !report.clauseId || !report.iqrNumberId || !report.personResponsible || !report.dateRaised || !updatedSection1.nonConformityDetails) {
+        toast.error("Please ensure all Report Identification fields and Non-Conformity Details are filled before locking Section 1.");
         return;
     }
 
-    const isReadyToLock = updatedSection1.adminAcknowledged && updatedSection1.adminSentMail;
+    const isReadyToLock = (field === 'adminAcknowledged' ? true : report.section1.adminAcknowledged) && 
+                         (field === 'adminSentMail' ? true : report.section1.adminSentMail);
 
     if (isReadyToLock) {
       onUpdate({
@@ -68,148 +79,63 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Report Identification</h3>
+      <h3 className="text-lg font-semibold">Report Identification (Read-Only)</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Department */}
         <div className="space-y-2">
-          <Label htmlFor="department">Department</Label>
-          {isEditable ? (
-            <Select
-              value={report.section1.departmentId}
-              onValueChange={(value) => handleInputChange('departmentId', value)}
-              disabled={!isEditable}
-            >
-              <SelectTrigger id="department">
-                <SelectValue placeholder="Select Department" />
-              </SelectTrigger>
-              <SelectContent>
-                {departments.map((dept) => (
-                  <SelectItem key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <Input readOnly value={findNameById(report.section1.departmentId, departments)} />
-          )}
+          <Label>Department</Label>
+          <Input readOnly value={findNameById(report.departmentId, departments)} className="bg-muted/50" />
         </div>
 
         {/* Clause ID */}
         <div className="space-y-2">
-          <Label htmlFor="clauseId">Clause ID</Label>
-          {isEditable ? (
-            <Select
-              value={report.section1.clauseId}
-              onValueChange={(value) => handleInputChange('clauseId', value)}
-              disabled={!isEditable}
-            >
-              <SelectTrigger id="clauseId">
-                <SelectValue placeholder="Select Clause ID" />
-              </SelectTrigger>
-              <SelectContent>
-                {clauseIDs.map((clause) => (
-                  <SelectItem key={clause.id} value={clause.id}>
-                    {clause.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <Input readOnly value={findNameById(report.section1.clauseId, clauseIDs)} />
-          )}
+          <Label>Clause ID</Label>
+          <Input readOnly value={findNameById(report.clauseId, clauseIDs)} className="bg-muted/50" />
         </div>
 
         {/* IQR Number */}
         <div className="space-y-2">
-          <Label htmlFor="iqrNumber">IQR Number</Label>
-          {isEditable ? (
-            <Select
-              value={report.section1.iqrNumberId}
-              onValueChange={(value) => handleInputChange('iqrNumberId', value)}
-              disabled={!isEditable}
-            >
-              <SelectTrigger id="iqrNumber">
-                <SelectValue placeholder="Select IQR Number" />
-              </SelectTrigger>
-              <SelectContent>
-                {iqrNumbers.map((iqr) => (
-                  <SelectItem key={iqr.id} value={iqr.id}>
-                    {iqr.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <Input readOnly value={findNameById(report.section1.iqrNumberId, iqrNumbers)} />
-          )}
+          <Label>IQR Number</Label>
+          <Input readOnly value={findNameById(report.iqrNumberId, iqrNumbers)} className="bg-muted/50" />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Date Raised */}
         <div className="space-y-2">
-          <Label htmlFor="dateRaised">Date Raised</Label>
-          <Input
-            id="dateRaised"
-            type="date"
-            value={report.section1.dateRaised}
-            onChange={(e) => handleInputChange('dateRaised', e.target.value)}
-            readOnly={!isEditable}
-            className={!isEditable ? 'bg-muted/50' : ''}
-          />
+          <Label>Date Raised</Label>
+          <Input readOnly value={report.dateRaised} type="date" className="bg-muted/50" />
         </div>
         
-        {/* Person Responsible (New) */}
+        {/* Person Responsible */}
         <div className="space-y-2">
-          <Label htmlFor="personResponsible">Person Responsible</Label>
-          <Input
-            id="personResponsible"
-            type="text"
-            value={report.section1.personResponsible}
-            onChange={(e) => handleInputChange('personResponsible', e.target.value)}
-            readOnly={!isEditable}
-            className={!isEditable ? 'bg-muted/50' : ''}
-          />
+          <Label>Person Responsible</Label>
+          <Input readOnly value={report.personResponsible} className="bg-muted/50" />
         </div>
       </div>
 
-      {/* ISO 9001:2015 QMS Clause Reference (New) */}
+      {/* ISO 9001:2015 QMS Clause Reference */}
       <div className="space-y-2">
-        <Label htmlFor="qmsClauseReference">ISO 9001:2015 QMS Clause Reference</Label>
-        <Input
-          id="qmsClauseReference"
-          type="text"
-          placeholder="e.g., 8.7.1"
-          value={report.section1.qmsClauseReference}
-          onChange={(e) => handleInputChange('qmsClauseReference', e.target.value)}
-          readOnly={!isEditable}
-          className={!isEditable ? 'bg-muted/50' : ''}
-        />
+        <Label>ISO 9001:2015 QMS Clause Reference</Label>
+        <Input readOnly value={report.qmsClauseReference} className="bg-muted/50" />
       </div>
       
-      {/* Associated Risk/ Risk Type (New) */}
+      {/* Associated Risk/ Risk Type */}
       <div className="space-y-2">
-        <Label htmlFor="associatedRisk">Associated Risk / Risk Type</Label>
-        <Input
-          id="associatedRisk"
-          type="text"
-          placeholder="e.g., Production Delay, Customer Complaint"
-          value={report.section1.associatedRisk}
-          onChange={(e) => handleInputChange('associatedRisk', e.target.value)}
-          readOnly={!isEditable}
-          className={!isEditable ? 'bg-muted/50' : ''}
-        />
+        <Label>Associated Risk / Risk Type</Label>
+        <Input readOnly value={report.associatedRisk} className="bg-muted/50" />
       </div>
 
-      {/* Non-Conformity Details -> Renamed to Details */}
+      <h3 className="text-lg font-semibold pt-4 border-t">Non-Conformity Details</h3>
+      
+      {/* Non-Conformity Details (Editable by Admin in Draft state) */}
       <div className="space-y-2">
         <Label htmlFor="nonConformityDetails">Details</Label>
         <Textarea
           id="nonConformityDetails"
           placeholder="Describe the non-conformity..."
           value={report.section1.nonConformityDetails}
-          onChange={(e) => handleInputChange('nonConformityDetails', e.target.value)}
+          onChange={(e) => handleSection1InputChange('nonConformityDetails', e.target.value)}
           readOnly={!isEditable}
           className={!isEditable ? 'bg-muted/50 min-h-[100px]' : 'min-h-[100px]'}
         />
