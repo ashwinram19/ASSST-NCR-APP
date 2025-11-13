@@ -18,7 +18,6 @@ export type NCARReport = {
     nonConformityDetails: string;
     adminAcknowledged: boolean;
     adminSentMail: boolean;
-    attachments: string[];
     
     // MOVED FIELDS:
     dateRaised: string;

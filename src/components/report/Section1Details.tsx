@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Check, Mail, Lock } from 'lucide-react';
 import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
 import { toast } from 'sonner';
-import AttachmentUploader from '@/components/AttachmentUploader';
 
 interface Section1DetailsProps {
   report: NCARReport;
@@ -22,7 +21,7 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
   const iqrNumbers = getIQRNumbers();
 
   // Helper to update fields within section1
-  const handleSection1InputChange = (field: keyof NCARReport['section1'], value: string | boolean | string[]) => {
+  const handleSection1InputChange = (field: keyof NCARReport['section1'], value: string | boolean) => {
     if (!isEditable) return;
     onUpdate({
       ...report,
@@ -94,7 +93,7 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
       <h3 className="text-lg font-semibold pt-4 border-t">Non-Conformity Details (Editable in Draft)</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Date Raised (MOVED & EDITABLE) */}
+        {/* Date Raised (EDITABLE) */}
         <div className="space-y-2">
           <Label htmlFor="dateRaised">Date Raised (Required)</Label>
           <Input
@@ -107,7 +106,7 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
           />
         </div>
         
-        {/* Person Responsible (MOVED & EDITABLE) */}
+        {/* Person Responsible (EDITABLE) */}
         <div className="space-y-2">
           <Label htmlFor="personResponsible">Person Responsible (Required)</Label>
           <Input
@@ -122,7 +121,7 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         </div>
       </div>
 
-      {/* ISO 9001:2015 QMS Clause Reference (MOVED & EDITABLE) */}
+      {/* ISO 9001:2015 QMS Clause Reference (EDITABLE) */}
       <div className="space-y-2">
         <Label htmlFor="qmsClauseReference">ISO 9001:2015 QMS Clause Reference</Label>
         <Input
@@ -136,7 +135,7 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         />
       </div>
       
-      {/* Associated Risk/ Risk Type (MOVED & EDITABLE) */}
+      {/* Associated Risk/ Risk Type (EDITABLE) */}
       <div className="space-y-2">
         <Label htmlFor="associatedRisk">Associated Risk / Risk Type</Label>
         <Input
@@ -162,13 +161,6 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
           className={!isEditable ? 'bg-muted/50 min-h-[100px]' : 'min-h-[100px]'}
         />
       </div>
-
-      {/* Attachments */}
-      <AttachmentUploader
-        attachments={report.section1.attachments}
-        onAttachmentsChange={(newAttachments) => handleSection1InputChange('attachments', newAttachments)}
-        isEditable={isEditable}
-      />
 
       {/* Admin Actions (Locking Mechanism) */}
       {isAdmin && report.status === 'Draft' && (

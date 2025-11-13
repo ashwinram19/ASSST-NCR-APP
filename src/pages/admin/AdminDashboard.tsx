@@ -115,7 +115,6 @@ const AdminDashboard = () => {
         nonConformityDetails: '',
         adminAcknowledged: false,
         adminSentMail: false,
-        attachments: [],
         
         // Initializing MOVED fields
         dateRaised: new Date().toISOString().split('T')[0], // Default to today
