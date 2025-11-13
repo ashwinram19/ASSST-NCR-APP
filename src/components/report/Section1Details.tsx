@@ -69,7 +69,15 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
 
   return (
     <div className="space-y-6">
-      
+      <h3 className="text-lg font-semibold">Report Identification (Read-Only)</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Department */}
+        <div className="space-y-2">
+          <Label>Department</Label>
+          <Input readOnly value={findNameById(report.departmentId, departments)} className="bg-muted/50" />
+        </div>
+      </div>
+
       <h3 className="text-lg font-semibold pt-4 border-t">Non-Conformity Details (Editable in Draft)</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
