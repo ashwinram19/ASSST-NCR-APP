@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Mail, Lock } from 'lucide-react';
 import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
 import { toast } from 'sonner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Section1DetailsProps {
   report: NCARReport;
@@ -40,9 +41,9 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
       [field]: true,
     };
 
-    // Check if required fields (now in section1) and nonConformityDetails are filled before attempting to lock
-    if (!report.section1.dateRaised || !report.section1.personResponsible || !report.section1.nonConformityDetails) {
-        toast.error("Please ensure Date Raised, Person Responsible, and Non-Conformity Details are filled before locking Section 1.");
+    // Check if required fields (including identification fields) and nonConformityDetails are filled before attempting to lock
+    if (!report.section1.departmentId || !report.section1.clauseId || !report.section1.iqrNumberId || !report.section1.dateRaised || !report.section1.personResponsible || !report.section1.nonConformityDetails) {
+        toast.error("Please ensure all required fields (Identification, Date Raised, Person Responsible, and Non-Conformity Details) are filled before locking Section 1.");
         return;
     }
 
@@ -67,25 +68,73 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
 
   const findNameById = (id: string, list: SetupItem[]) => list.find(item => item.id === id)?.name || 'N/A';
 
+  const renderSelectOrInput = (
+    field: keyof NCARReport['section1'], 
+    label: string, 
+    dataList: SetupItem[], 
+    placeholder: string
+  ) => {
+    const currentValue = report.section1[field] as string;
+
+    if (isEditable) {
+      return (
+        <div className="space-y-2">
+          <Label>{label} (Required)</Label>
+          <Select
+            value={currentValue}
+            onValueChange={(value) => handleSection1InputChange(field, value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+            <SelectContent>
+              {dataList.map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+
+    // Read-only view
+    return (
+      <div className="space-y-2">
+        <Label>{label}</Label>
+        <Input readOnly value={findNameById(currentValue, dataList)} className="bg-muted/50" />
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Report Identification (Read-Only)</h3>
+      <h3 className="text-lg font-semibold">Report Identification</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Department */}
-        <div className="space-y-2">
-          <Label>Department</Label>
-          <Input readOnly value={findNameById(report.section1.departmentId, departments)} className="bg-muted/50" />
-        </div>
+        {renderSelectOrInput(
+          'departmentId', 
+          'Department', 
+          departments, 
+          'Select Department'
+        )}
+        
         {/* Clause ID */}
-        <div className="space-y-2">
-          <Label>Clause ID</Label>
-          <Input readOnly value={findNameById(report.section1.clauseId, clauseIDs)} className="bg-muted/50" />
-        </div>
+        {renderSelectOrInput(
+          'clauseId', 
+          'Clause ID', 
+          clauseIDs, 
+          'Select Clause ID'
+        )}
+        
         {/* IQR Number */}
-        <div className="space-y-2">
-          <Label>IQR Number</Label>
-          <Input readOnly value={findNameById(report.section1.iqrNumberId, iqrNumbers)} className="bg-muted/50" />
-        </div>
+        {renderSelectOrInput(
+          'iqrNumberId', 
+          'IQR Number', 
+          iqrNumbers, 
+          'Select IQR Number'
+        )}
       </div>
 
       <h3 className="text-lg font-semibold pt-4 border-t">Non-Conformity Details (Editable in Draft)</h3>

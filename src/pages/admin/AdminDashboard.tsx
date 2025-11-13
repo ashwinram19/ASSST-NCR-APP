@@ -131,12 +131,11 @@ const AdminDashboard = () => {
       createdAt: now,
       updatedAt: now,
       
-      // Identification fields are now part of section1
       name: reportData.name,
       
       // Section 1: Non-Conformity Details (Admin Only)
       section1: {
-        ...reportData.section1, // departmentId, clauseId, iqrNumberId
+        ...reportData.section1, // departmentId, clauseId, iqrNumberId (now empty strings)
         nonConformityDetails: '',
         adminAcknowledged: false,
         adminSentMail: false,
@@ -183,44 +182,44 @@ const AdminDashboard = () => {
         <CardHeader>
           <CardTitle>Existing Reports ({reports.length})</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Report Name</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Department</TableHead>
-                  <TableHead>Clause ID</TableHead>
-                  <TableHead>IQR Number</TableHead>
-                  <TableHead>Created Date</TableHead>
-                  <TableHead className="w-[200px] text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {reports.length === 0 ? (
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">
-                      No reports created yet.
-                    </TableCell>
+                    <TableHead>Report Name</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Clause ID</TableHead>
+                    <TableHead>IQR Number</TableHead>
+                    <TableHead>Created Date</TableHead>
+                    <TableHead className="w-[200px] text-right">Actions</TableHead>
                   </TableRow>
-                ) : (
-                  reports.map((report) => (
-                    <ReportRow 
-                      key={report.id} 
-                      report={report} 
-                      onDelete={handleDeleteReport} 
-                      onUpdate={handleUpdateReport}
-                      departments={departments}
-                      clauseIDs={clauseIDs}
-                      iqrNumbers={iqrNumbers}
-                    />
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
+                </TableHeader>
+                <TableBody>
+                  {reports.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-muted-foreground">
+                        No reports created yet.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    reports.map((report) => (
+                      <ReportRow 
+                        key={report.id} 
+                        report={report} 
+                        onDelete={handleDeleteReport} 
+                        onUpdate={handleUpdateReport}
+                        departments={departments}
+                        clauseIDs={clauseIDs}
+                        iqrNumbers={iqrNumbers}
+                      />
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
       </Card>
     </div>
   );
