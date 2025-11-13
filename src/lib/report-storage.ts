@@ -30,18 +30,26 @@ export type NCARReport = {
   section2: {
     correction: string;
     dateCompleted: string;
+    reviewedBy: string; // New field
+    approvedBy: string; // New field
   };
   section3: {
     correctiveAction: string;
     dateCompleted: string;
+    reviewedBy: string; // New field
+    approvedBy: string; // New field
   };
   section4: {
     rootCauseAnalysis: string;
     dateCompleted: string;
+    reviewedBy: string; // New field
+    approvedBy: string; // New field
   };
   section5: {
     verificationDetails: string;
     dateVerified: string;
+    reviewedBy: string; // New field
+    approvedBy: string; // New field
   };
 };
 

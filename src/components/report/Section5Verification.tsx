@@ -46,6 +46,31 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
           className={!isEditable ? 'bg-muted/50' : ''}
         />
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+        <div className="space-y-2">
+          <Label htmlFor="reviewedBy5">Reviewed By</Label>
+          <Input
+            id="reviewedBy5"
+            type="text"
+            value={report.section5.reviewedBy}
+            onChange={(e) => handleInputChange('reviewedBy', e.target.value)}
+            readOnly={!isEditable}
+            className={!isEditable ? 'bg-muted/50' : ''}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="approvedBy5">Approved By</Label>
+          <Input
+            id="approvedBy5"
+            type="text"
+            value={report.section5.approvedBy}
+            onChange={(e) => handleInputChange('approvedBy', e.target.value)}
+            readOnly={!isEditable}
+            className={!isEditable ? 'bg-muted/50' : ''}
+          />
+        </div>
+      </div>
     </div>
   );
 };

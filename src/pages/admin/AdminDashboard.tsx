@@ -110,17 +110,17 @@ const AdminDashboard = () => {
         iqrNumberId: '',
         dateRaised: new Date().toISOString().split('T')[0],
         nonConformityDetails: '',
-        qmsClauseReference: '', // New field initialization
-        associatedRisk: '',      // New field initialization
-        personResponsible: '',   // New field initialization
+        qmsClauseReference: '', 
+        associatedRisk: '',      
+        personResponsible: '',   
         adminAcknowledged: false,
         adminSentMail: false,
       },
       collaborators: '',
-      section2: { correction: '', dateCompleted: '' },
-      section3: { correctiveAction: '', dateCompleted: '' },
-      section4: { rootCauseAnalysis: '', dateCompleted: '' },
-      section5: { verificationDetails: '', dateVerified: '' },
+      section2: { correction: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
+      section3: { correctiveAction: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
+      section4: { rootCauseAnalysis: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
+      section5: { verificationDetails: '', dateVerified: '', reviewedBy: '', approvedBy: '' },
     };
 
     saveReport(newReport);

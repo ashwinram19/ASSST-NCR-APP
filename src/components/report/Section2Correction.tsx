@@ -46,6 +46,31 @@ const Section2Correction: React.FC<SectionProps> = ({ report, onUpdate, isEditab
           className={!isEditable ? 'bg-muted/50' : ''}
         />
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+        <div className="space-y-2">
+          <Label htmlFor="reviewedBy2">Reviewed By</Label>
+          <Input
+            id="reviewedBy2"
+            type="text"
+            value={report.section2.reviewedBy}
+            onChange={(e) => handleInputChange('reviewedBy', e.target.value)}
+            readOnly={!isEditable}
+            className={!isEditable ? 'bg-muted/50' : ''}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="approvedBy2">Approved By</Label>
+          <Input
+            id="approvedBy2"
+            type="text"
+            value={report.section2.approvedBy}
+            onChange={(e) => handleInputChange('approvedBy', e.target.value)}
+            readOnly={!isEditable}
+            className={!isEditable ? 'bg-muted/50' : ''}
+          />
+        </div>
+      </div>
     </div>
   );
 };

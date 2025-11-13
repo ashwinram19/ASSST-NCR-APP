@@ -46,6 +46,31 @@ const Section4RootCauseAnalysis: React.FC<SectionProps> = ({ report, onUpdate, i
           className={!isEditable ? 'bg-muted/50' : ''}
         />
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+        <div className="space-y-2">
+          <Label htmlFor="reviewedBy4">Reviewed By</Label>
+          <Input
+            id="reviewedBy4"
+            type="text"
+            value={report.section4.reviewedBy}
+            onChange={(e) => handleInputChange('reviewedBy', e.target.value)}
+            readOnly={!isEditable}
+            className={!isEditable ? 'bg-muted/50' : ''}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="approvedBy4">Approved By</Label>
+          <Input
+            id="approvedBy4"
+            type="text"
+            value={report.section4.approvedBy}
+            onChange={(e) => handleInputChange('approvedBy', e.target.value)}
+            readOnly={!isEditable}
+            className={!isEditable ? 'bg-muted/50' : ''}
+          />
+        </div>
+      </div>
     </div>
   );
 };
