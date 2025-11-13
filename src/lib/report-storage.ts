@@ -7,22 +7,24 @@ export type NCARReport = {
   createdAt: number;
   updatedAt: number;
   
-  // Report Identification Fields (Moved from Section 1)
+  // Report Identification Fields (Minimal required for creation)
   departmentId: string;
   clauseId: string;
   iqrNumberId: string;
-  dateRaised: string;
-  qmsClauseReference: string;
-  associatedRisk: string;
-  personResponsible: string;
   // End Report Identification Fields
 
-  // Section 1: Non-Conformity Details (Admin Only)
+  // Section 1: Non-Conformity Details (Admin Only Edit in Draft)
   section1: {
     nonConformityDetails: string;
     adminAcknowledged: boolean;
     adminSentMail: boolean;
-    attachments: string[]; // Added attachments field
+    attachments: string[];
+    
+    // MOVED FIELDS:
+    dateRaised: string;
+    qmsClauseReference: string;
+    associatedRisk: string;
+    personResponsible: string;
   };
 
   // Collaborators (User input field after Section 1)

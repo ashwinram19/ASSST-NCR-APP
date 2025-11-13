@@ -14,10 +14,6 @@ interface NewReportFormProps {
     departmentId: string;
     clauseId: string;
     iqrNumberId: string;
-    dateRaised: string;
-    qmsClauseReference: string;
-    associatedRisk: string;
-    personResponsible: string;
   }) => void;
 }
 
@@ -30,14 +26,10 @@ const NewReportForm: React.FC<NewReportFormProps> = ({ onCreate }) => {
   const [departmentId, setDepartmentId] = useState('');
   const [clauseId, setClauseId] = useState('');
   const [iqrNumberId, setIqrNumberId] = useState('');
-  const [dateRaised, setDateRaised] = useState(new Date().toISOString().split('T')[0]);
-  const [personResponsible, setPersonResponsible] = useState('');
-  const [qmsClauseReference, setQmsClauseReference] = useState('');
-  const [associatedRisk, setAssociatedRisk] = useState('');
-
+  
   const handleCreate = () => {
-    if (!name.trim() || !departmentId || !clauseId || !iqrNumberId || !dateRaised || !personResponsible) {
-      toast.error("Please fill in all required Report Identification fields (Name, Department, Clause ID, IQR Number, Date Raised, Person Responsible).");
+    if (!name.trim() || !departmentId || !clauseId || !iqrNumberId) {
+      toast.error("Please fill in all required fields (Report Name, Department, Clause ID, IQR Number).");
       return;
     }
 
@@ -46,10 +38,6 @@ const NewReportForm: React.FC<NewReportFormProps> = ({ onCreate }) => {
       departmentId,
       clauseId,
       iqrNumberId,
-      dateRaised,
-      personResponsible: personResponsible.trim(),
-      qmsClauseReference: qmsClauseReference.trim(),
-      associatedRisk: associatedRisk.trim(),
     });
 
     // Reset form
@@ -57,10 +45,6 @@ const NewReportForm: React.FC<NewReportFormProps> = ({ onCreate }) => {
     setDepartmentId('');
     setClauseId('');
     setIqrNumberId('');
-    setDateRaised(new Date().toISOString().split('T')[0]);
-    setPersonResponsible('');
-    setQmsClauseReference('');
-    setAssociatedRisk('');
   };
 
   return (
@@ -142,56 +126,7 @@ const NewReportForm: React.FC<NewReportFormProps> = ({ onCreate }) => {
             </Select>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Date Raised */}
-          <div className="space-y-2">
-            <Label htmlFor="dateRaised">Date Raised (Required)</Label>
-            <Input
-              id="dateRaised"
-              type="date"
-              value={dateRaised}
-              onChange={(e) => setDateRaised(e.target.value)}
-            />
-          </div>
-          
-          {/* Person Responsible */}
-          <div className="space-y-2">
-            <Label htmlFor="personResponsible">Person Responsible (Required)</Label>
-            <Input
-              id="personResponsible"
-              type="text"
-              placeholder="Name of person responsible"
-              value={personResponsible}
-              onChange={(e) => setPersonResponsible(e.target.value)}
-            />
-          </div>
-        </div>
-
-        {/* ISO 9001:2015 QMS Clause Reference */}
-        <div className="space-y-2">
-          <Label htmlFor="qmsClauseReference">ISO 9001:2015 QMS Clause Reference</Label>
-          <Input
-            id="qmsClauseReference"
-            type="text"
-            placeholder="e.g., 8.7.1"
-            value={qmsClauseReference}
-            onChange={(e) => setQmsClauseReference(e.target.value)}
-          />
-        </div>
         
-        {/* Associated Risk/ Risk Type */}
-        <div className="space-y-2">
-          <Label htmlFor="associatedRisk">Associated Risk / Risk Type</Label>
-          <Input
-            id="associatedRisk"
-            type="text"
-            placeholder="e.g., Production Delay, Customer Complaint"
-            value={associatedRisk}
-            onChange={(e) => setAssociatedRisk(e.target.value)}
-          />
-        </div>
-
         <Button onClick={handleCreate} className="w-full mt-4">
           <PlusCircle className="mr-2 h-4 w-4" /> Create Report
         </Button>

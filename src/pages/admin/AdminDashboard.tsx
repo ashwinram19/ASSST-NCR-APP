@@ -96,10 +96,6 @@ const AdminDashboard = () => {
     departmentId: string;
     clauseId: string;
     iqrNumberId: string;
-    dateRaised: string;
-    qmsClauseReference: string;
-    associatedRisk: string;
-    personResponsible: string;
   }) => {
     const now = Date.now();
     const newReport: NCARReport = {
@@ -113,16 +109,19 @@ const AdminDashboard = () => {
       departmentId: reportData.departmentId,
       clauseId: reportData.clauseId,
       iqrNumberId: reportData.iqrNumberId,
-      dateRaised: reportData.dateRaised,
-      qmsClauseReference: reportData.qmsClauseReference, 
-      associatedRisk: reportData.associatedRisk,      
-      personResponsible: reportData.personResponsible,   
       
-      // Section 1 (only details and admin actions remain)
+      // Section 1: Non-Conformity Details (Admin Only)
       section1: {
         nonConformityDetails: '',
         adminAcknowledged: false,
         adminSentMail: false,
+        attachments: [],
+        
+        // Initializing MOVED fields
+        dateRaised: new Date().toISOString().split('T')[0], // Default to today
+        qmsClauseReference: '', 
+        associatedRisk: '',      
+        personResponsible: '',   
       },
       collaborators: '',
       section2: { correction: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },

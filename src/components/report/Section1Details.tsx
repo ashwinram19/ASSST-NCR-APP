@@ -5,7 +5,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Check, Mail, Lock } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
 import { toast } from 'sonner';
 import AttachmentUploader from '@/components/AttachmentUploader';
@@ -22,7 +21,7 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
   const clauseIDs = getClauseIDs();
   const iqrNumbers = getIQRNumbers();
 
-  // Helper to update fields that remain in section1
+  // Helper to update fields within section1
   const handleSection1InputChange = (field: keyof NCARReport['section1'], value: string | boolean | string[]) => {
     if (!isEditable) return;
     onUpdate({
@@ -42,9 +41,9 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
       [field]: true,
     };
 
-    // Check if required fields (now root-level) and nonConformityDetails are filled before attempting to lock
-    if (!report.departmentId || !report.clauseId || !report.iqrNumberId || !report.personResponsible || !report.dateRaised || !updatedSection1.nonConformityDetails) {
-        toast.error("Please ensure all Report Identification fields and Non-Conformity Details are filled before locking Section 1.");
+    // Check if required fields (now in section1) and nonConformityDetails are filled before attempting to lock
+    if (!report.section1.dateRaised || !report.section1.personResponsible || !report.section1.nonConformityDetails) {
+        toast.error("Please ensure Date Raised, Person Responsible, and Non-Conformity Details are filled before locking Section 1.");
         return;
     }
 
@@ -92,37 +91,68 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         </div>
       </div>
 
+      <h3 className="text-lg font-semibold pt-4 border-t">Non-Conformity Details (Editable in Draft)</h3>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Date Raised */}
+        {/* Date Raised (MOVED & EDITABLE) */}
         <div className="space-y-2">
-          <Label>Date Raised</Label>
-          <Input readOnly value={report.dateRaised} type="date" className="bg-muted/50" />
+          <Label htmlFor="dateRaised">Date Raised (Required)</Label>
+          <Input
+            id="dateRaised"
+            type="date"
+            value={report.section1.dateRaised}
+            onChange={(e) => handleSection1InputChange('dateRaised', e.target.value)}
+            readOnly={!isEditable}
+            className={!isEditable ? 'bg-muted/50' : ''}
+          />
         </div>
         
-        {/* Person Responsible */}
+        {/* Person Responsible (MOVED & EDITABLE) */}
         <div className="space-y-2">
-          <Label>Person Responsible</Label>
-          <Input readOnly value={report.personResponsible} className="bg-muted/50" />
+          <Label htmlFor="personResponsible">Person Responsible (Required)</Label>
+          <Input
+            id="personResponsible"
+            type="text"
+            placeholder="Name of person responsible"
+            value={report.section1.personResponsible}
+            onChange={(e) => handleSection1InputChange('personResponsible', e.target.value)}
+            readOnly={!isEditable}
+            className={!isEditable ? 'bg-muted/50' : ''}
+          />
         </div>
       </div>
 
-      {/* ISO 9001:2015 QMS Clause Reference */}
+      {/* ISO 9001:2015 QMS Clause Reference (MOVED & EDITABLE) */}
       <div className="space-y-2">
-        <Label>ISO 9001:2015 QMS Clause Reference</Label>
-        <Input readOnly value={report.qmsClauseReference} className="bg-muted/50" />
+        <Label htmlFor="qmsClauseReference">ISO 9001:2015 QMS Clause Reference</Label>
+        <Input
+          id="qmsClauseReference"
+          type="text"
+          placeholder="e.g., 8.7.1"
+          value={report.section1.qmsClauseReference}
+          onChange={(e) => handleSection1InputChange('qmsClauseReference', e.target.value)}
+          readOnly={!isEditable}
+          className={!isEditable ? 'bg-muted/50' : ''}
+        />
       </div>
       
-      {/* Associated Risk/ Risk Type */}
+      {/* Associated Risk/ Risk Type (MOVED & EDITABLE) */}
       <div className="space-y-2">
-        <Label>Associated Risk / Risk Type</Label>
-        <Input readOnly value={report.associatedRisk} className="bg-muted/50" />
+        <Label htmlFor="associatedRisk">Associated Risk / Risk Type</Label>
+        <Input
+          id="associatedRisk"
+          type="text"
+          placeholder="e.g., Production Delay, Customer Complaint"
+          value={report.section1.associatedRisk}
+          onChange={(e) => handleSection1InputChange('associatedRisk', e.target.value)}
+          readOnly={!isEditable}
+          className={!isEditable ? 'bg-muted/50' : ''}
+        />
       </div>
 
-      <h3 className="text-lg font-semibold pt-4 border-t">Non-Conformity Details</h3>
-      
       {/* Non-Conformity Details (Editable by Admin in Draft state) */}
       <div className="space-y-2">
-        <Label htmlFor="nonConformityDetails">Details</Label>
+        <Label htmlFor="nonConformityDetails">Non-Conformity Details (Required)</Label>
         <Textarea
           id="nonConformityDetails"
           placeholder="Describe the non-conformity..."
