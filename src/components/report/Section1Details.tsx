@@ -159,11 +159,52 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
             className={!isEditable ? 'bg-muted/50' : ''}
           />
         </div>
+        
+        {/* Person Responsible (New) */}
+        <div className="space-y-2">
+          <Label htmlFor="personResponsible">Person Responsible</Label>
+          <Input
+            id="personResponsible"
+            type="text"
+            value={report.section1.personResponsible}
+            onChange={(e) => handleInputChange('personResponsible', e.target.value)}
+            readOnly={!isEditable}
+            className={!isEditable ? 'bg-muted/50' : ''}
+          />
+        </div>
       </div>
 
-      {/* Non-Conformity Details */}
+      {/* ISO 9001:2015 QMS Clause Reference (New) */}
       <div className="space-y-2">
-        <Label htmlFor="nonConformityDetails">Non-Conformity Details</Label>
+        <Label htmlFor="qmsClauseReference">ISO 9001:2015 QMS Clause Reference</Label>
+        <Input
+          id="qmsClauseReference"
+          type="text"
+          placeholder="e.g., 8.7.1"
+          value={report.section1.qmsClauseReference}
+          onChange={(e) => handleInputChange('qmsClauseReference', e.target.value)}
+          readOnly={!isEditable}
+          className={!isEditable ? 'bg-muted/50' : ''}
+        />
+      </div>
+      
+      {/* Associated Risk/ Risk Type (New) */}
+      <div className="space-y-2">
+        <Label htmlFor="associatedRisk">Associated Risk / Risk Type</Label>
+        <Input
+          id="associatedRisk"
+          type="text"
+          placeholder="e.g., Production Delay, Customer Complaint"
+          value={report.section1.associatedRisk}
+          onChange={(e) => handleInputChange('associatedRisk', e.target.value)}
+          readOnly={!isEditable}
+          className={!isEditable ? 'bg-muted/50' : ''}
+        />
+      </div>
+
+      {/* Non-Conformity Details -> Renamed to Details */}
+      <div className="space-y-2">
+        <Label htmlFor="nonConformityDetails">Details</Label>
         <Textarea
           id="nonConformityDetails"
           placeholder="Describe the non-conformity..."

@@ -110,6 +110,9 @@ const AdminDashboard = () => {
         iqrNumberId: '',
         dateRaised: new Date().toISOString().split('T')[0],
         nonConformityDetails: '',
+        qmsClauseReference: '', // New field initialization
+        associatedRisk: '',      // New field initialization
+        personResponsible: '',   // New field initialization
         adminAcknowledged: false,
         adminSentMail: false,
       },

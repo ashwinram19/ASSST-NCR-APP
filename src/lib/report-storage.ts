@@ -14,6 +14,11 @@ export type NCARReport = {
     iqrNumberId: string;
     dateRaised: string;
     nonConformityDetails: string;
+    // New fields
+    qmsClauseReference: string;
+    associatedRisk: string;
+    personResponsible: string;
+    // End New fields
     adminAcknowledged: boolean;
     adminSentMail: boolean;
   };
