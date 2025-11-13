@@ -8,8 +8,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import NewReportForm from '@/components/NewReportForm';
+import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
 
-const ReportRow: React.FC<{ report: NCARReport, onDelete: (id: string) => void, onUpdate: (report: NCARReport) => void }> = ({ report, onDelete, onUpdate }) => {
+// Helper function to find name by ID
+const findNameById = (id: string, list: SetupItem[]) => list.find(item => item.id === id)?.name || 'N/A';
+
+const ReportRow: React.FC<{ 
+  report: NCARReport, 
+  onDelete: (id: string) => void, 
+  onUpdate: (report: NCARReport) => void,
+  departments: SetupItem[],
+  clauseIDs: SetupItem[],
+  iqrNumbers: SetupItem[],
+}> = ({ report, onDelete, onUpdate, departments, clauseIDs, iqrNumbers }) => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = React.useState(false);
   const [newName, setNewName] = React.useState(report.name);
@@ -56,6 +67,9 @@ const ReportRow: React.FC<{ report: NCARReport, onDelete: (id: string) => void, 
         )}
       </TableCell>
       <TableCell>{getStatusBadge(report.status)}</TableCell>
+      <TableCell>{findNameById(report.departmentId, departments)}</TableCell>
+      <TableCell>{findNameById(report.clauseId, clauseIDs)}</TableCell>
+      <TableCell>{findNameById(report.iqrNumberId, iqrNumbers)}</TableCell>
       <TableCell>{new Date(report.createdAt).toLocaleDateString()}</TableCell>
       <TableCell className="text-right space-x-2">
         <Button 
@@ -81,6 +95,16 @@ const ReportRow: React.FC<{ report: NCARReport, onDelete: (id: string) => void, 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [reports, setReports] = React.useState<NCARReport[]>([]);
+  const [departments, setDepartments] = React.useState<SetupItem[]>([]);
+  const [clauseIDs, setClauseIDs] = React.useState<SetupItem[]>([]);
+  const [iqrNumbers, setIqrNumbers] = React.useState<SetupItem[]>([]);
+
+
+  const loadSetupData = () => {
+    setDepartments(getDepartments());
+    setClauseIDs(getClauseIDs());
+    setIqrNumbers(getIQRNumbers());
+  };
 
   const refreshReports = () => {
     // Sort by creation date descending
@@ -88,6 +112,7 @@ const AdminDashboard = () => {
   };
 
   React.useEffect(() => {
+    loadSetupData();
     refreshReports();
   }, []);
 
@@ -159,34 +184,42 @@ const AdminDashboard = () => {
           <CardTitle>Existing Reports ({reports.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Report Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created Date</TableHead>
-                <TableHead className="w-[200px] text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {reports.length === 0 ? (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    No reports created yet.
-                  </TableCell>
+                  <TableHead>Report Name</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Clause ID</TableHead>
+                  <TableHead>IQR Number</TableHead>
+                  <TableHead>Created Date</TableHead>
+                  <TableHead className="w-[200px] text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                reports.map((report) => (
-                  <ReportRow 
-                    key={report.id} 
-                    report={report} 
-                    onDelete={handleDeleteReport} 
-                    onUpdate={handleUpdateReport}
-                  />
-                ))
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {reports.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground">
+                      No reports created yet.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  reports.map((report) => (
+                    <ReportRow 
+                      key={report.id} 
+                      report={report} 
+                      onDelete={handleDeleteReport} 
+                      onUpdate={handleUpdateReport}
+                      departments={departments}
+                      clauseIDs={clauseIDs}
+                      iqrNumbers={iqrNumbers}
+                    />
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
