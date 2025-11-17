@@ -99,3 +99,48 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom styles for PDF export mode to reduce font size and spacing */
+.pdf-export-mode {
+  /* Base font size reduction */
+  font-size: 10px !important; 
+}
+
+.pdf-export-mode h1 {
+  font-size: 1.5em !important;
+}
+
+.pdf-export-mode h3 {
+  font-size: 1.2em !important;
+}
+
+/* Target input/textarea text */
+.pdf-export-mode input, 
+.pdf-export-mode textarea,
+.pdf-export-mode .text-sm,
+.pdf-export-mode .text-base {
+  font-size: 0.8rem !important;
+}
+
+/* Reduce padding/margin inside the report container */
+.pdf-export-mode .p-4 {
+  padding: 0.5rem !important;
+}
+.pdf-export-mode .p-6 {
+  padding: 0.75rem !important;
+}
+.pdf-export-mode .space-y-4 {
+  --space-y-reverse: 0;
+  margin-top: calc(0.5rem * calc(1 - var(--space-y-reverse))) !important;
+  margin-bottom: calc(0.5rem * var(--space-y-reverse)) !important;
+}
+.pdf-export-mode .space-y-2 {
+  --space-y-reverse: 0;
+  margin-top: calc(0.25rem * calc(1 - var(--space-y-reverse))) !important;
+  margin-bottom: calc(0.25rem * var(--space-y-reverse)) !important;
+}
+
+/* Ensure textareas don't take up too much vertical space */
+.pdf-export-mode .min-h-\[100px\] {
+    min-height: 60px !important; 
+}

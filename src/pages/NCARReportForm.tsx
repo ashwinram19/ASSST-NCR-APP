@@ -139,6 +139,9 @@ const NCARReportForm = () => {
         // 1. Temporarily open all sections to ensure all content is rendered
         setOpenAccordionItems(ALL_SECTIONS);
 
+        // 2. Apply PDF specific styling to reduce font size and spacing
+        reportRef.current.classList.add('pdf-export-mode');
+
         // Wait for the DOM to update and render the expanded content
         // A small delay is necessary for the accordion animation/layout calculation to complete
         await new Promise(resolve => setTimeout(resolve, 300)); 
@@ -179,8 +182,9 @@ const NCARReportForm = () => {
             toast.dismiss('pdf-loading');
             toast.error("Failed to generate PDF. This method relies on browser rendering and may fail on complex layouts.");
         } finally {
-            // 3. Restore previous state (though for Verified reports, this is likely ALL_SECTIONS anyway)
+            // 3. Restore previous state and remove styling
             setOpenAccordionItems(previousOpenState);
+            reportRef.current.classList.remove('pdf-export-mode');
         }
     }
   };
