@@ -8,15 +8,17 @@ import { Check, Lock } from 'lucide-react';
 import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import PdfTextDisplay from '@/components/PdfTextDisplay';
 
 interface Section1DetailsProps {
   report: NCARReport;
   onUpdate: (report: NCARReport) => void;
   isEditable: boolean;
   isAdmin: boolean;
+  isPdfExporting: boolean;
 }
 
-const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isEditable, isAdmin }) => {
+const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isEditable, isAdmin, isPdfExporting }) => {
   const departments = getDepartments();
   const clauseIDs = getClauseIDs();
   const iqrNumbers = getIQRNumbers();
@@ -65,6 +67,16 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
     placeholder: string
   ) => {
     const currentValue = report.section1[field] as string;
+    const displayValue = findNameById(currentValue, dataList);
+
+    if (isPdfExporting) {
+        return (
+            <div className="space-y-2">
+                <Label>{label}</Label>
+                <PdfTextDisplay value={displayValue} />
+            </div>
+        );
+    }
 
     if (isEditable) {
       return (
@@ -93,10 +105,43 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
     return (
       <div className="space-y-2">
         <Label>{label}</Label>
-        <Input readOnly value={findNameById(currentValue, dataList)} className="bg-muted/50" />
+        <Input readOnly value={displayValue} className="bg-muted/50" />
       </div>
     );
   };
+  
+  // Helper for standard text/date inputs
+  const renderStandardInput = (field: keyof NCARReport['section1'], label: string, type: 'text' | 'date' | 'textarea', placeholder?: string) => {
+    const currentValue = report.section1[field] as string;
+    
+    if (isPdfExporting) {
+        return (
+            <div className="space-y-2">
+                <Label>{label}</Label>
+                <PdfTextDisplay value={currentValue} />
+            </div>
+        );
+    }
+
+    const InputComponent = type === 'textarea' ? Textarea : Input;
+    const inputProps = {
+        id: field,
+        type: type === 'date' ? 'date' : 'text',
+        placeholder: placeholder,
+        value: currentValue,
+        onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleSection1InputChange(field, e.target.value),
+        readOnly: !isEditable,
+        className: !isEditable ? (type === 'textarea' ? 'bg-muted/50 min-h-[100px]' : 'bg-muted/50') : (type === 'textarea' ? 'min-h-[100px]' : ''),
+    };
+
+    return (
+        <div className="space-y-2">
+            <Label htmlFor={field}>{label} {['dateRaised', 'personResponsible', 'nonConformityDetails'].includes(field) ? '(Required)' : ''}</Label>
+            <InputComponent {...inputProps} />
+        </div>
+    );
+  };
+
 
   return (
     <div className="space-y-6">
@@ -127,80 +172,27 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         )}
       </div>
 
-      <h3 className="text-lg font-semibold pt-4 border-t">Non-Conformity Details (Editable in Draft)</h3>
+      <h3 className="text-lg font-semibold pt-4 border-t">Non-Conformity Details ({isPdfExporting ? 'Finalized' : 'Editable in Draft'})</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Date Raised (EDITABLE) */}
-        <div className="space-y-2">
-          <Label htmlFor="dateRaised">Date Raised (Required)</Label>
-          <Input
-            id="dateRaised"
-            type="date"
-            value={report.section1.dateRaised}
-            onChange={(e) => handleSection1InputChange('dateRaised', e.target.value)}
-            readOnly={!isEditable}
-            className={!isEditable ? 'bg-muted/50' : ''}
-          />
-        </div>
+        {/* Date Raised */}
+        {renderStandardInput('dateRaised', 'Date Raised', 'date')}
         
-        {/* Person Responsible (EDITABLE) */}
-        <div className="space-y-2">
-          <Label htmlFor="personResponsible">Person Responsible (Required)</Label>
-          <Input
-            id="personResponsible"
-            type="text"
-            placeholder="Name of person responsible"
-            value={report.section1.personResponsible}
-            onChange={(e) => handleSection1InputChange('personResponsible', e.target.value)}
-            readOnly={!isEditable}
-            className={!isEditable ? 'bg-muted/50' : ''}
-          />
-        </div>
+        {/* Person Responsible */}
+        {renderStandardInput('personResponsible', 'Person Responsible', 'text', 'Name of person responsible')}
       </div>
 
-      {/* ISO 9001:2015 QMS Clause Reference (EDITABLE) */}
-      <div className="space-y-2">
-        <Label htmlFor="qmsClauseReference">ISO 9001:2015 QMS Clause Reference</Label>
-        <Input
-          id="qmsClauseReference"
-          type="text"
-          placeholder="e.g., 8.7.1"
-          value={report.section1.qmsClauseReference}
-          onChange={(e) => handleSection1InputChange('qmsClauseReference', e.target.value)}
-          readOnly={!isEditable}
-          className={!isEditable ? 'bg-muted/50' : ''}
-        />
-      </div>
+      {/* ISO 9001:2015 QMS Clause Reference */}
+      {renderStandardInput('qmsClauseReference', 'ISO 9001:2015 QMS Clause Reference', 'text', 'e.g., 8.7.1')}
       
-      {/* Associated Risk/ Risk Type (EDITABLE) */}
-      <div className="space-y-2">
-        <Label htmlFor="associatedRisk">Associated Risk / Risk Type</Label>
-        <Input
-          id="associatedRisk"
-          type="text"
-          placeholder="e.g., Production Delay, Customer Complaint"
-          value={report.section1.associatedRisk}
-          onChange={(e) => handleSection1InputChange('associatedRisk', e.target.value)}
-          readOnly={!isEditable}
-          className={!isEditable ? 'bg-muted/50' : ''}
-        />
-      </div>
+      {/* Associated Risk/ Risk Type */}
+      {renderStandardInput('associatedRisk', 'Associated Risk / Risk Type', 'text', 'e.g., Production Delay, Customer Complaint')}
 
-      {/* Non-Conformity Details (Editable by Admin in Draft state) */}
-      <div className="space-y-2">
-        <Label htmlFor="nonConformityDetails">Non-Conformity Details (Required)</Label>
-        <Textarea
-          id="nonConformityDetails"
-          placeholder="Describe the non-conformity..."
-          value={report.section1.nonConformityDetails}
-          onChange={(e) => handleSection1InputChange('nonConformityDetails', e.target.value)}
-          readOnly={!isEditable}
-          className={!isEditable ? 'bg-muted/50 min-h-[100px]' : 'min-h-[100px]'}
-        />
-      </div>
+      {/* Non-Conformity Details */}
+      {renderStandardInput('nonConformityDetails', 'Non-Conformity Details', 'textarea', 'Describe the non-conformity...')}
 
-      {/* Admin Actions (Locking Mechanism) */}
-      {isAdmin && report.status === 'Draft' && (
+      {/* Admin Actions (Locking Mechanism) - Hide in PDF mode */}
+      {!isPdfExporting && isAdmin && report.status === 'Draft' && (
         <div className="pt-4 border-t flex items-center space-x-4">
           <Button
             onClick={handleLockSection}
@@ -218,8 +210,8 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         </div>
       )}
       
-      {/* Display locked status for users */}
-      {!isEditable && report.status !== 'Draft' && (
+      {/* Display locked status for users - Hide in PDF mode */}
+      {!isPdfExporting && !isEditable && report.status !== 'Draft' && (
         <p className="text-sm text-green-600 font-medium">Section 1 is finalized and locked.</p>
       )}
     </div>

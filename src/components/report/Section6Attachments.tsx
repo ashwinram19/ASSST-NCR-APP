@@ -6,9 +6,10 @@ interface SectionProps {
   report: NCARReport;
   onUpdate: (report: NCARReport) => void;
   isEditable: boolean;
+  isPdfExporting: boolean;
 }
 
-const Section6Attachments: React.FC<SectionProps> = ({ report, onUpdate, isEditable }) => {
+const Section6Attachments: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
   const handleUpdateNotes = (newNotes: string) => {
     if (!isEditable) return;
     onUpdate({
@@ -25,6 +26,7 @@ const Section6Attachments: React.FC<SectionProps> = ({ report, onUpdate, isEdita
       notes={report.section6.attachmentNotes}
       onUpdateNotes={handleUpdateNotes}
       isEditable={isEditable}
+      isPdfExporting={isPdfExporting}
     />
   );
 };

@@ -3,14 +3,16 @@ import { NCARReport } from '@/lib/report-storage';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import PdfTextDisplay from '@/components/PdfTextDisplay';
 
 interface SectionProps {
   report: NCARReport;
   onUpdate: (report: NCARReport) => void;
   isEditable: boolean;
+  isPdfExporting: boolean;
 }
 
-const Section3CorrectiveAction: React.FC<SectionProps> = ({ report, onUpdate, isEditable }) => {
+const Section3CorrectiveAction: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
   const handleInputChange = (field: keyof NCARReport['section3'], value: string) => {
     if (!isEditable) return;
     onUpdate({
@@ -22,54 +24,45 @@ const Section3CorrectiveAction: React.FC<SectionProps> = ({ report, onUpdate, is
     });
   };
 
+  const renderField = (field: keyof NCARReport['section3'], label: string, type: 'text' | 'date' | 'textarea') => {
+    const currentValue = report.section3[field];
+
+    if (isPdfExporting) {
+        return (
+            <div className="space-y-2">
+                <Label>{label}</Label>
+                <PdfTextDisplay value={currentValue} />
+            </div>
+        );
+    }
+
+    const InputComponent = type === 'textarea' ? Textarea : Input;
+    const inputProps = {
+        id: field,
+        type: type === 'date' ? 'date' : 'text',
+        value: currentValue,
+        onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleInputChange(field, e.target.value),
+        readOnly: !isEditable,
+        className: !isEditable ? (type === 'textarea' ? 'bg-muted/50 min-h-[100px]' : 'bg-muted/50') : (type === 'textarea' ? 'min-h-[100px]' : ''),
+        placeholder: type === 'textarea' ? "Describe the corrective action planned/taken to prevent recurrence..." : undefined,
+    };
+
+    return (
+        <div className="space-y-2">
+            <Label htmlFor={field}>{label}</Label>
+            <InputComponent {...inputProps} />
+        </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="correctiveAction">Corrective Action Details</Label>
-        <Textarea
-          id="correctiveAction"
-          placeholder="Describe the corrective action planned/taken to prevent recurrence..."
-          value={report.section3.correctiveAction}
-          onChange={(e) => handleInputChange('correctiveAction', e.target.value)}
-          readOnly={!isEditable}
-          className={!isEditable ? 'bg-muted/50 min-h-[100px]' : 'min-h-[100px]'}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="dateCompleted3">Date Completed</Label>
-        <Input
-          id="dateCompleted3"
-          type="date"
-          value={report.section3.dateCompleted}
-          onChange={(e) => handleInputChange('dateCompleted', e.target.value)}
-          readOnly={!isEditable}
-          className={!isEditable ? 'bg-muted/50' : ''}
-        />
-      </div>
+      {renderField('correctiveAction', 'Corrective Action Details', 'textarea')}
+      {renderField('dateCompleted', 'Date Completed', 'date')}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-        <div className="space-y-2">
-          <Label htmlFor="reviewedBy3">Reviewed By</Label>
-          <Input
-            id="reviewedBy3"
-            type="text"
-            value={report.section3.reviewedBy}
-            onChange={(e) => handleInputChange('reviewedBy', e.target.value)}
-            readOnly={!isEditable}
-            className={!isEditable ? 'bg-muted/50' : ''}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="approvedBy3">Approved By</Label>
-          <Input
-            id="approvedBy3"
-            type="text"
-            value={report.section3.approvedBy}
-            onChange={(e) => handleInputChange('approvedBy', e.target.value)}
-            readOnly={!isEditable}
-            className={!isEditable ? 'bg-muted/50' : ''}
-          />
-        </div>
+        {renderField('reviewedBy', 'Reviewed By', 'text')}
+        {renderField('approvedBy', 'Approved By', 'text')}
       </div>
     </div>
   );

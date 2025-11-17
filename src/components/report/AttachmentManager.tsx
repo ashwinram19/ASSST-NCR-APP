@@ -4,11 +4,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2, FileText, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import PdfTextDisplay from '@/components/PdfTextDisplay';
 
 interface AttachmentManagerProps {
   notes: string;
   onUpdateNotes: (notes: string) => void;
   isEditable: boolean;
+  isPdfExporting: boolean;
 }
 
 // Helper to convert notes string (newline separated) to array
@@ -19,7 +21,7 @@ const notesToArray = (notes: string): string[] =>
 const arrayToNotes = (arr: string[]): string => 
   arr.join('\n');
 
-const AttachmentManager: React.FC<AttachmentManagerProps> = ({ notes, onUpdateNotes, isEditable }) => {
+const AttachmentManager: React.FC<AttachmentManagerProps> = ({ notes, onUpdateNotes, isEditable, isPdfExporting }) => {
   const [newAttachmentName, setNewAttachmentName] = useState('');
   const attachments = notesToArray(notes);
 
@@ -42,6 +44,15 @@ const AttachmentManager: React.FC<AttachmentManagerProps> = ({ notes, onUpdateNo
     onUpdateNotes(arrayToNotes(updatedAttachments));
     toast.success("Attachment removed.");
   };
+
+  if (isPdfExporting) {
+    return (
+        <div className="space-y-4">
+            <Label>Attachments / Verification Notes</Label>
+            <PdfTextDisplay value={notes} className="p-4" />
+        </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

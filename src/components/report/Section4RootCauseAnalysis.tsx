@@ -3,14 +3,16 @@ import { NCARReport } from '@/lib/report-storage';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import PdfTextDisplay from '@/components/PdfTextDisplay';
 
 interface SectionProps {
   report: NCARReport;
   onUpdate: (report: NCARReport) => void;
   isEditable: boolean;
+  isPdfExporting: boolean;
 }
 
-const Section4RootCauseAnalysis: React.FC<SectionProps> = ({ report, onUpdate, isEditable }) => {
+const Section4RootCauseAnalysis: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
   const handleInputChange = (field: keyof NCARReport['section4'], value: string) => {
     if (!isEditable) return;
     onUpdate({
@@ -22,54 +24,45 @@ const Section4RootCauseAnalysis: React.FC<SectionProps> = ({ report, onUpdate, i
     });
   };
 
+  const renderField = (field: keyof NCARReport['section4'], label: string, type: 'text' | 'date' | 'textarea') => {
+    const currentValue = report.section4[field];
+
+    if (isPdfExporting) {
+        return (
+            <div className="space-y-2">
+                <Label>{label}</Label>
+                <PdfTextDisplay value={currentValue} />
+            </div>
+        );
+    }
+
+    const InputComponent = type === 'textarea' ? Textarea : Input;
+    const inputProps = {
+        id: field,
+        type: type === 'date' ? 'date' : 'text',
+        value: currentValue,
+        onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleInputChange(field, e.target.value),
+        readOnly: !isEditable,
+        className: !isEditable ? (type === 'textarea' ? 'bg-muted/50 min-h-[100px]' : 'bg-muted/50') : (type === 'textarea' ? 'min-h-[100px]' : ''),
+        placeholder: type === 'textarea' ? "Document the root cause analysis findings..." : undefined,
+    };
+
+    return (
+        <div className="space-y-2">
+            <Label htmlFor={field}>{label}</Label>
+            <InputComponent {...inputProps} />
+        </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="rootCauseAnalysis">Root Cause Analysis</Label>
-        <Textarea
-          id="rootCauseAnalysis"
-          placeholder="Document the root cause analysis findings..."
-          value={report.section4.rootCauseAnalysis}
-          onChange={(e) => handleInputChange('rootCauseAnalysis', e.target.value)}
-          readOnly={!isEditable}
-          className={!isEditable ? 'bg-muted/50 min-h-[100px]' : 'min-h-[100px]'}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="dateCompleted4">Date Completed</Label>
-        <Input
-          id="dateCompleted4"
-          type="date"
-          value={report.section4.dateCompleted}
-          onChange={(e) => handleInputChange('dateCompleted', e.target.value)}
-          readOnly={!isEditable}
-          className={!isEditable ? 'bg-muted/50' : ''}
-        />
-      </div>
+      {renderField('rootCauseAnalysis', 'Root Cause Analysis', 'textarea')}
+      {renderField('dateCompleted', 'Date Completed', 'date')}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-        <div className="space-y-2">
-          <Label htmlFor="reviewedBy4">Reviewed By</Label>
-          <Input
-            id="reviewedBy4"
-            type="text"
-            value={report.section4.reviewedBy}
-            onChange={(e) => handleInputChange('reviewedBy', e.target.value)}
-            readOnly={!isEditable}
-            className={!isEditable ? 'bg-muted/50' : ''}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="approvedBy4">Approved By</Label>
-          <Input
-            id="approvedBy4"
-            type="text"
-            value={report.section4.approvedBy}
-            onChange={(e) => handleInputChange('approvedBy', e.target.value)}
-            readOnly={!isEditable}
-            className={!isEditable ? 'bg-muted/50' : ''}
-          />
-        </div>
+        {renderField('reviewedBy', 'Reviewed By', 'text')}
+        {renderField('approvedBy', 'Approved By', 'text')}
       </div>
     </div>
   );

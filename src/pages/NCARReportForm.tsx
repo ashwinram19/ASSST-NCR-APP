@@ -11,6 +11,7 @@ import { CheckCircle, Download, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import PdfTextDisplay from '@/components/PdfTextDisplay';
 
 // Section Imports
 import Section1Details from '@/components/report/Section1Details';
@@ -33,6 +34,7 @@ const NCARReportForm = () => {
   const [report, setReport] = React.useState<NCARReport | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [openAccordionItems, setOpenAccordionItems] = React.useState<string[]>(['section-1']); // State to control accordion
+  const [isPdfExporting, setIsPdfExporting] = React.useState(false); // New state for PDF mode
   
   // Ref for the report content container to capture
   const reportRef = React.useRef<HTMLDivElement>(null);
@@ -136,8 +138,9 @@ const NCARReportForm = () => {
         // Store current open state
         const previousOpenState = openAccordionItems;
         
-        // 1. Temporarily open all sections to ensure all content is rendered
+        // 1. Temporarily open all sections and enable PDF rendering mode
         setOpenAccordionItems(ALL_SECTIONS);
+        setIsPdfExporting(true);
 
         // 2. Apply PDF specific styling to reduce font size and spacing
         reportRef.current.classList.add('pdf-export-mode');
@@ -183,6 +186,7 @@ const NCARReportForm = () => {
             toast.error("Failed to generate PDF. This method relies on browser rendering and may fail on complex layouts.");
         } finally {
             // 3. Restore previous state and remove styling
+            setIsPdfExporting(false);
             setOpenAccordionItems(previousOpenState);
             reportRef.current.classList.remove('pdf-export-mode');
         }
@@ -249,6 +253,7 @@ const NCARReportForm = () => {
                               onUpdate={handleUpdateReport}
                               isEditable={isSection1Editable}
                               isAdmin={isAdmin}
+                              isPdfExporting={isPdfExporting}
                           />
                       </AccordionContent>
                   </AccordionItem>
@@ -256,14 +261,18 @@ const NCARReportForm = () => {
                   {/* Collaborators Field */}
                   <div className="p-4 border-b">
                       <Label htmlFor="collaborators">Collaborators (Enter names separated by comma)</Label>
-                      <Input
-                          id="collaborators"
-                          placeholder="e.g., John Doe, Jane Smith"
-                          value={report.collaborators}
-                          onChange={handleCollaboratorsChange}
-                          readOnly={isReportVerified || isSubmitted}
-                          className={isReportVerified || isSubmitted ? 'bg-muted/50 mt-2' : 'mt-2'}
-                      />
+                      {isPdfExporting ? (
+                          <PdfTextDisplay value={report.collaborators} />
+                      ) : (
+                          <Input
+                              id="collaborators"
+                              placeholder="e.g., John Doe, Jane Smith"
+                              value={report.collaborators}
+                              onChange={handleCollaboratorsChange}
+                              readOnly={isReportVerified || isSubmitted}
+                              className={isReportVerified || isSubmitted ? 'bg-muted/50 mt-2' : 'mt-2'}
+                          />
+                      )}
                   </div>
 
                   {/* Section 2: Correction */}
@@ -277,6 +286,7 @@ const NCARReportForm = () => {
                               report={report}
                               onUpdate={handleUpdateReport}
                               isEditable={isSections2to5Editable}
+                              isPdfExporting={isPdfExporting}
                           />
                       </AccordionContent>
                   </AccordionItem>
@@ -292,6 +302,7 @@ const NCARReportForm = () => {
                               report={report}
                               onUpdate={handleUpdateReport}
                               isEditable={isSections2to5Editable}
+                              isPdfExporting={isPdfExporting}
                           />
                       </AccordionContent>
                   </AccordionItem>
@@ -307,6 +318,7 @@ const NCARReportForm = () => {
                               report={report}
                               onUpdate={handleUpdateReport}
                               isEditable={isSections2to5Editable}
+                              isPdfExporting={isPdfExporting}
                           />
                       </AccordionContent>
                   </AccordionItem>
@@ -322,6 +334,7 @@ const NCARReportForm = () => {
                               report={report}
                               onUpdate={handleUpdateReport}
                               isEditable={isSections2to5Editable}
+                              isPdfExporting={isPdfExporting}
                           />
                       </AccordionContent>
                   </AccordionItem>
@@ -337,6 +350,7 @@ const NCARReportForm = () => {
                               report={report}
                               onUpdate={handleUpdateReport}
                               isEditable={isSection6Editable}
+                              isPdfExporting={isPdfExporting}
                           />
                       </AccordionContent>
                   </AccordionItem>
