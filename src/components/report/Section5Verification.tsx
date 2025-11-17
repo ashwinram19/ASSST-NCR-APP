@@ -14,6 +14,7 @@ interface SectionProps {
 
 const VERIFICATION_RESULTS = ['Pass', 'Fail', 'N/A'];
 const VERIFICATION_STEPS: Array<keyof NCARReport['section5']> = ['step1', 'step2', 'step3'];
+const DEFAULT_STEP: VerificationStep = { result: '', details: '' };
 
 const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
   const { approvedBy } = report.section5;
@@ -49,7 +50,8 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
   };
 
   const renderVerificationRow = (stepKey: keyof NCARReport['section5'], index: number) => {
-    const stepData = report.section5[stepKey as 'step1' | 'step2' | 'step3'];
+    // Safely access step data, defaulting to an empty structure if missing
+    const stepData = report.section5[stepKey as 'step1' | 'step2' | 'step3'] || DEFAULT_STEP;
     
     if (isPdfExporting) {
         // Use a simple block layout for PDF to ensure content flows and breaks correctly
