@@ -120,13 +120,20 @@ const NCARReportForm = () => {
   const handleVerifyAndClose = () => {
     if (!report || !isAdmin || report.status !== 'SubmittedForVerification') return;
 
+    const now = new Date();
+    const datePart = now.toISOString().split('T')[0]; // YYYY-MM-DD
+    const timePart = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const formattedDate = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    
+    const approvalSentence = `At ${timePart} on ${formattedDate}, this document is approved by QMS Admin.`;
+
     const verifiedReport = {
       ...report,
       status: 'Verified' as ReportStatus,
       section5: {
         ...report.section5,
-        dateVerified: new Date().toISOString().split('T')[0],
-        approvedBy: 'Approved By QMS Admin', // Automatically set Approved By
+        dateVerified: datePart, // Keep dateVerified for data consistency, though display uses the sentence
+        approvedBy: approvalSentence, // Store the full sentence here
       }
     };
     handleUpdateReport(verifiedReport);

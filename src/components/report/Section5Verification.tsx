@@ -19,9 +19,7 @@ interface SectionProps {
 const VERIFICATION_RESULTS = ['Pass', 'Fail', 'N/A'];
 
 const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
-  const { verificationItems, dateVerified, approvedBy } = report.section5;
-
-  // Removed handleFixedInputChange as these fields are now set automatically
+  const { verificationItems, approvedBy } = report.section5;
 
   const handleItemChange = (id: string, field: keyof VerificationItem, value: string) => {
     if (!isEditable) return;
@@ -67,14 +65,14 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
     toast.success("Verification step removed.");
   };
 
-  // Updated to render read-only display only
-  const renderFixedField = (field: 'dateVerified' | 'approvedBy', label: string) => {
-    const currentValue = report.section5[field] || 'Pending Verification';
+  // Renders the combined approval sentence
+  const renderApprovalStamp = () => {
+    const approvalText = approvedBy || 'Pending Verification Approval';
 
     return (
-        <div className="space-y-2">
-            <Label>{label}</Label>
-            <PdfTextDisplay value={currentValue} />
+        <div className="space-y-2 col-span-2">
+            <Label>Verification Approval</Label>
+            <PdfTextDisplay value={approvalText} />
         </div>
     );
   };
@@ -159,9 +157,8 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
                 )}
             </div>
             
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                {renderFixedField('dateVerified', 'Date Verified')}
-                {renderFixedField('approvedBy', 'Approved By')}
+            <div className="grid grid-cols-1 pt-4 border-t">
+                {renderApprovalStamp()}
             </div>
         </div>
     );
@@ -185,9 +182,8 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-        {renderFixedField('dateVerified', 'Date Verified')}
-        {renderFixedField('approvedBy', 'Approved By')}
+      <div className="grid grid-cols-1 pt-4 border-t">
+        {renderApprovalStamp()}
       </div>
     </div>
   );
