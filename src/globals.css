@@ -104,6 +104,9 @@
 .pdf-export-mode {
   /* Base font size reduction */
   font-size: 10px !important; 
+  /* Force white background and dark text for printing */
+  background-color: white !important;
+  color: hsl(222.2 84% 4.9%) !important; /* Dark foreground */
 }
 
 .pdf-export-mode h1 {
@@ -134,13 +137,13 @@
     resize: none !important;
     
     /* Reset layout properties */
-    padding: 0 !important;
+    padding: 4px 0 !important; /* Added 4px padding */
     height: auto !important;
     min-height: auto !important;
     line-height: 1.2 !important; 
     
     /* Ensure text is visible */
-    color: var(--foreground) !important; 
+    color: inherit !important; /* Inherit the dark color set on .pdf-export-mode */
 }
 
 /* Ensure textareas flow naturally */
