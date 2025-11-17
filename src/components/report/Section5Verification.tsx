@@ -108,10 +108,10 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
     );
   };
 
-  // PDF Header for the table
+  // PDF Header for the table - now plain text/border
   const renderPdfHeader = () => (
-    <div className="grid grid-cols-3 bg-green-600 text-white font-bold text-center text-xs">
-        <div className="p-1 border-r border-white">Verification Result</div>
+    <div className="grid grid-cols-3 bg-gray-100 text-foreground font-bold text-center text-xs border-b border-gray-400">
+        <div className="p-1 border-r border-gray-400">Verification Result</div>
         <div className="col-span-2 p-1">Verification Details/Remarks</div>
     </div>
   );
@@ -119,7 +119,7 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <h4 className="text-lg font-semibold">Verification Log (3 Fixed Steps)</h4>
+        <h4 className="text-lg font-semibold">Verification Log</h4>
         
         {isPdfExporting ? (
             <div className="border border-gray-300 dark:border-gray-700">
