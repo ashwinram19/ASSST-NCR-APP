@@ -160,20 +160,28 @@
     min-height: auto !important; 
 }
 
-/* Reduce padding/margin inside the report container */
+/* Aggressively reduce padding/margin inside the report container for clean breaks */
 .pdf-export-mode .p-4 {
-  padding: 0.5rem !important;
+  padding: 0.25rem !important;
 }
 .pdf-export-mode .p-6 {
-  padding: 0.75rem !important;
+  padding: 0.5rem !important;
 }
 .pdf-export-mode .space-y-4 {
   --space-y-reverse: 0;
-  margin-top: calc(0.5rem * calc(1 - var(--space-y-reverse))) !important;
-  margin-bottom: calc(0.5rem * var(--space-y-reverse)) !important;
+  margin-top: calc(0.25rem * calc(1 - var(--space-y-reverse))) !important;
+  margin-bottom: calc(0.25rem * var(--space-y-reverse)) !important;
 }
 .pdf-export-mode .space-y-2 {
   --space-y-reverse: 0;
-  margin-top: calc(0.25rem * calc(1 - var(--space-y-reverse))) !important;
-  margin-bottom: calc(0.25rem * var(--space-y-reverse)) !important;
+  margin-top: calc(0.1rem * calc(1 - var(--space-y-reverse))) !important;
+  margin-bottom: calc(0.1rem * var(--space-y-reverse)) !important;
+}
+
+/* Target specific spacing elements used in PdfTextDisplay */
+.pdf-export-mode .mt-2 {
+    margin-top: 0.1rem !important;
+}
+.pdf-export-mode .p-1 {
+    padding: 0.1rem !important;
 }
