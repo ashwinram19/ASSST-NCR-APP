@@ -128,8 +128,11 @@ const NCARReportForm = () => {
   };
   
   const handleDownloadPdf = async () => {
-    if (!report || report.status !== 'Verified') {
-        toast.error("Report must be Verified to download the PDF.");
+    // Check if report is Verified OR SubmittedForVerification
+    const isDownloadable = report?.status === 'Verified' || report?.status === 'SubmittedForVerification';
+
+    if (!report || !isDownloadable) {
+        toast.error("Report must be Submitted for Verification or Verified to download the PDF.");
         return;
     }
 
@@ -208,6 +211,9 @@ const NCARReportForm = () => {
   const isSection6Editable = isAdmin && (report.status === 'Draft' || report.status === 'SubmittedForVerification');
   const isReportVerified = report.status === 'Verified';
   const isSubmitted = report.status === 'SubmittedForVerification';
+  
+  // New variable to determine if download buttons should be visible
+  const isDownloadable = isReportVerified || isSubmitted; 
   
   const getSectionStatusIcon = (sectionName: string) => {
     if (report.status === 'Draft' && sectionName !== 'Section 1') {
@@ -412,8 +418,8 @@ const NCARReportForm = () => {
           </Button>
         )}
 
-        {/* Download Section (Visible if Verified) */}
-        {isReportVerified && (
+        {/* Download Section (Visible if Verified or Submitted) */}
+        {isDownloadable && (
           <div className="space-x-4">
             <span className="text-lg font-semibold text-primary">Download Report:</span>
             <Button variant="outline" disabled>
