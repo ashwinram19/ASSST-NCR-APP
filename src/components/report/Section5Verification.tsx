@@ -77,17 +77,21 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
     );
   };
 
-  const renderVerificationItem = (item: VerificationItem) => {
+  const renderVerificationItem = (item: VerificationItem, index: number) => {
     if (isPdfExporting) {
+        // Use a simple block layout for PDF to ensure content flows and breaks correctly
         return (
-            <div key={item.id} className="grid grid-cols-3 gap-4 border-b py-2 break-inside-avoid">
-                <div className="col-span-1 space-y-1">
-                    <Label className="font-medium">Result:</Label>
-                    <PdfTextDisplay value={item.result} className="!p-0 !border-none !bg-transparent" />
-                </div>
-                <div className="col-span-2 space-y-1">
-                    <Label className="font-medium">Details/Remarks:</Label>
-                    <PdfTextDisplay value={item.details} className="!p-0 !border-none !bg-transparent" />
+            <div key={item.id} className="border-b py-2 break-inside-avoid">
+                <p className="text-xs font-semibold mb-1">Verification Step {index + 1}</p>
+                <div className="flex space-x-4 mb-1">
+                    <div className="w-1/4">
+                        <Label className="font-medium">Result:</Label>
+                        <PdfTextDisplay value={item.result} className="!p-0 !border-none !bg-transparent" />
+                    </div>
+                    <div className="w-3/4">
+                        <Label className="font-medium">Details/Remarks:</Label>
+                        <PdfTextDisplay value={item.details} className="!p-0 !border-none !bg-transparent" />
+                    </div>
                 </div>
             </div>
         );
@@ -153,7 +157,7 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
                 {verificationItems.length === 0 ? (
                     <p className="text-sm text-muted-foreground">No verification steps documented.</p>
                 ) : (
-                    verificationItems.map(renderVerificationItem)
+                    verificationItems.map((item, index) => renderVerificationItem(item, index))
                 )}
             </div>
             
@@ -172,7 +176,7 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
           <p className="text-sm text-muted-foreground">No verification steps documented yet.</p>
         )}
         <div className="space-y-4">
-          {verificationItems.map(renderVerificationItem)}
+          {verificationItems.map((item, index) => renderVerificationItem(item, index))}
         </div>
         
         {isEditable && (

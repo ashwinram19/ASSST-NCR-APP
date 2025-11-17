@@ -158,6 +158,7 @@ const NCARReportForm = () => {
         const previousOpenState = openAccordionItems;
         
         // 1. Temporarily open all sections and enable PDF rendering mode
+        // Note: We still set ALL_SECTIONS here, but the rendering logic below will hide section-6 (Attachments)
         setOpenAccordionItems(ALL_SECTIONS);
         setIsPdfExporting(true);
 
@@ -281,7 +282,7 @@ const NCARReportForm = () => {
                 value={openAccordionItems} 
                 onValueChange={setOpenAccordionItems}
               >
-                  {/* Section 1: Non-Conformity Details (Admin Only Edit) */}
+                  {/* Section 1: Non-Conformity Details (Admin Only Edit in Draft) */}
                   <AccordionItem 
                     value="section-1"
                     className={cn(isPdfExporting && 'page-break-after')}
@@ -380,25 +381,27 @@ const NCARReportForm = () => {
                       </AccordionContent>
                   </AccordionItem>
                   
-                  {/* NEW Section 5: Attachments / Verification Notes (Uses section-6 data) */}
-                  <AccordionItem value="section-6">
-                      <AccordionTrigger disabled={report.status === 'Draft' && !isAdminFullyEditable}>
-                          Section 5: Attachments / Verification Notes
-                          {getLockIcon(isSection5AttachmentsEditable)}
-                      </AccordionTrigger>
-                      <AccordionContent>
-                          <div className={cn(isPdfExporting && 'break-inside-avoid')}>
-                              <Section6Attachments
-                                  report={report}
-                                  onUpdate={handleUpdateReport}
-                                  isEditable={isSection5AttachmentsEditable}
-                                  isPdfExporting={isPdfExporting}
-                              />
-                          </div>
-                      </AccordionContent>
-                  </AccordionItem>
+                  {/* Section 5: Attachments / Verification Notes (Uses section-6 data) - HIDDEN IN PDF MODE */}
+                  {!isPdfExporting && (
+                      <AccordionItem value="section-6">
+                          <AccordionTrigger disabled={report.status === 'Draft' && !isAdminFullyEditable}>
+                              Section 5: Attachments / Verification Notes
+                              {getLockIcon(isSection5AttachmentsEditable)}
+                          </AccordionTrigger>
+                          <AccordionContent>
+                              <div className={cn(isPdfExporting && 'break-inside-avoid')}>
+                                  <Section6Attachments
+                                      report={report}
+                                      onUpdate={handleUpdateReport}
+                                      isEditable={isSection5AttachmentsEditable}
+                                      isPdfExporting={isPdfExporting}
+                                  />
+                              </div>
+                          </AccordionContent>
+                      </AccordionItem>
+                  )}
 
-                  {/* NEW Section 6: Verification of Implementation and Effectiveness (Uses section-5 data) */}
+                  {/* Section 6: Verification of Implementation and Effectiveness (Uses section-5 data) */}
                   <AccordionItem 
                     value="section-5"
                     className={cn(isPdfExporting && 'page-break-after')}
