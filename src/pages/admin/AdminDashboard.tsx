@@ -149,7 +149,6 @@ const AdminDashboard = () => {
         
         // Initializing other fields
         dateRaised: new Date().toISOString().split('T')[0], // Default to today
-        qmsClauseReference: '', 
         associatedRisk: '',      
         personResponsible: '',   
       },
@@ -198,7 +197,7 @@ const AdminDashboard = () => {
                     <TableHead>Report Name</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Department</TableHead>
-                    <TableHead>Clause ID</TableHead>
+                    <TableHead>ISO Clause ID</TableHead>
                     <TableHead>IQR Number</TableHead>
                     <TableHead>Nonconformity Type</TableHead>
                     <TableHead>Created Date</TableHead>

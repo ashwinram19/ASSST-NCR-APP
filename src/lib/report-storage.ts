@@ -22,7 +22,6 @@ export type NCARReport = {
     adminSentMail: boolean;
     
     dateRaised: string;
-    qmsClauseReference: string;
     associatedRisk: string;
     personResponsible: string;
   };
@@ -69,15 +68,20 @@ export const loadReports = (): NCARReport[] => {
     const data = localStorage.getItem(REPORT_STORAGE_KEY);
     // Ensure loaded reports have section6 initialized for backward compatibility if needed, 
     // though for new reports created after this change, it will be present.
-    const reports: NCARReport[] = data ? JSON.parse(data) : [];
-    return reports.map(report => ({
-      ...report,
-      section6: report.section6 || { attachmentNotes: '' },
-      section1: {
-        ...report.section1,
-        nonConformityTypeId: report.section1.nonConformityTypeId || '', // Initialize new field
-      }
-    }));
+    const reports: any[] = data ? JSON.parse(data) : [];
+    return reports.map(report => {
+      // Safely destructure and omit qmsClauseReference if it exists in old data
+      const { qmsClauseReference, ...restSection1 } = report.section1 || {};
+      
+      return {
+        ...report,
+        section6: report.section6 || { attachmentNotes: '' },
+        section1: {
+          ...restSection1,
+          nonConformityTypeId: restSection1.nonConformityTypeId || '', // Initialize new field
+        }
+      } as NCARReport;
+    });
   } catch (e) {
     console.error('Error loading reports:', e);
     return [];

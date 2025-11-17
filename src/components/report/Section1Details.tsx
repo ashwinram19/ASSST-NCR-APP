@@ -39,7 +39,7 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
   const handleLockSection = () => {
     if (!isAdmin || report.status !== 'Draft') return;
 
-    // Check if required fields (including identification fields) and nonConformityDetails are filled before attempting to lock
+    // Check if required fields (Identification, Type of Nonconformity, Date Raised, Person Responsible, and Non-Conformity Details) are filled before attempting to lock
     if (!report.section1.departmentId || !report.section1.clauseId || !report.section1.iqrNumberId || !report.section1.nonConformityTypeId || !report.section1.dateRaised || !report.section1.personResponsible || !report.section1.nonConformityDetails) {
         toast.error("Please ensure all required fields (Identification, Type of Nonconformity, Date Raised, Person Responsible, and Non-Conformity Details) are filled before locking Section 1.");
         return;
@@ -156,12 +156,12 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
           'Select Department'
         )}
         
-        {/* Clause ID */}
+        {/* Clause ID -> ISO Clause ID */}
         {renderSelectOrInput(
           'clauseId', 
-          'Clause ID', 
+          'ISO Clause ID', 
           clauseIDs, 
-          'Select Clause ID'
+          'Select ISO Clause ID'
         )}
         
         {/* IQR Number */}
@@ -193,9 +193,6 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         {renderStandardInput('personResponsible', 'Person Responsible', 'text', 'Name of person responsible')}
       </div>
 
-      {/* ISO 9001:2015 QMS Clause Reference */}
-      {renderStandardInput('qmsClauseReference', 'ISO 9001:2015 QMS Clause Reference', 'text', 'e.g., 8.7.1')}
-      
       {/* Associated Risk/ Risk Type */}
       {renderStandardInput('associatedRisk', 'Associated Risk / Risk Type', 'text', 'e.g., Production Delay, Customer Complaint')}
 
