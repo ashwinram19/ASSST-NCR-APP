@@ -51,9 +51,19 @@ const AttachmentManager: React.FC<AttachmentManagerProps> = ({ notes, onUpdateNo
 
   if (isPdfExporting) {
     return (
-        <div className="space-y-4">
+        <div className="space-y-2">
             <Label>Attachments / Verification Notes</Label>
-            <PdfTextDisplay value={notes} className="p-4" />
+            {attachments.length === 0 ? (
+                <PdfTextDisplay value="No attachments documented." />
+            ) : (
+                <ul className="list-disc pl-5 space-y-1">
+                    {attachments.map((attachment, index) => (
+                        <li key={index} className="text-sm">
+                            {attachment}
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
   }
