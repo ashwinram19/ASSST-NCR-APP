@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { MadeWithDyad } from "@/components/made-with-dyad";
 import { useNavigate } from "react-router-dom";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -74,7 +73,7 @@ const Login = () => {
         </div>
       </div>
       <div className="absolute bottom-0 w-full">
-        <MadeWithDyad />
+        {/* Removed MadeWithDyad */}
       </div>
     </div>
   );

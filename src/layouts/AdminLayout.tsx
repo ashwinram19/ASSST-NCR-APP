@@ -3,7 +3,6 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Home, Settings, ListChecks, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MadeWithDyad } from '@/components/made-with-dyad';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -56,7 +55,7 @@ const AdminLayout = () => {
             <LogOut className="h-5 w-5 mr-3" />
             Logout
           </Button>
-          <MadeWithDyad />
+          {/* Removed MadeWithDyad */}
         </div>
       </aside>
 
