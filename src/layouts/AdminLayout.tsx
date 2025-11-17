@@ -18,6 +18,7 @@ const AdminLayout = () => {
     { to: "/admin/setup/departments", icon: Settings, label: "Departments Setup" },
     { to: "/admin/setup/clause-id", icon: ListChecks, label: "Clause ID Setup" },
     { to: "/admin/setup/iqr-number", icon: Settings, label: "IQR Number Setup" },
+    { to: "/admin/setup/nonconformity-type", icon: Settings, label: "Nonconformity Type Setup" },
   ];
 
   return (

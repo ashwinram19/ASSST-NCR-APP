@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import NewReportForm from '@/components/NewReportForm';
-import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
+import { getDepartments, getClauseIDs, getIQRNumbers, getNonConformityTypes, SetupItem } from '@/lib/data-storage';
 
 // Helper function to find name by ID
 const findNameById = (id: string, list: SetupItem[]) => list.find(item => item.id === id)?.name || 'N/A';
@@ -20,7 +20,8 @@ const ReportRow: React.FC<{
   departments: SetupItem[],
   clauseIDs: SetupItem[],
   iqrNumbers: SetupItem[],
-}> = ({ report, onDelete, onUpdate, departments, clauseIDs, iqrNumbers }) => {
+  nonConformityTypes: SetupItem[],
+}> = ({ report, onDelete, onUpdate, departments, clauseIDs, iqrNumbers, nonConformityTypes }) => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = React.useState(false);
   const [newName, setNewName] = React.useState(report.name);
@@ -72,6 +73,7 @@ const ReportRow: React.FC<{
       <TableCell>{findNameById(report.section1.departmentId, departments)}</TableCell>
       <TableCell>{findNameById(report.section1.clauseId, clauseIDs)}</TableCell>
       <TableCell>{findNameById(report.section1.iqrNumberId, iqrNumbers)}</TableCell>
+      <TableCell>{findNameById(report.section1.nonConformityTypeId, nonConformityTypes)}</TableCell>
       <TableCell>{new Date(report.createdAt).toLocaleDateString()}</TableCell>
       <TableCell className="text-right space-x-2">
         <Button 
@@ -100,12 +102,14 @@ const AdminDashboard = () => {
   const [departments, setDepartments] = React.useState<SetupItem[]>([]);
   const [clauseIDs, setClauseIDs] = React.useState<SetupItem[]>([]);
   const [iqrNumbers, setIqrNumbers] = React.useState<SetupItem[]>([]);
+  const [nonConformityTypes, setNonConformityTypes] = React.useState<SetupItem[]>([]);
 
 
   const loadSetupData = () => {
     setDepartments(getDepartments());
     setClauseIDs(getClauseIDs());
     setIqrNumbers(getIQRNumbers());
+    setNonConformityTypes(getNonConformityTypes());
   };
 
   const refreshReports = () => {
@@ -138,6 +142,7 @@ const AdminDashboard = () => {
       // Section 1: Non-Conformity Details (Admin Only)
       section1: {
         ...reportData.section1, // departmentId, clauseId, iqrNumberId (now empty strings)
+        nonConformityTypeId: '', // Initialize new field
         nonConformityDetails: '',
         adminAcknowledged: false,
         adminSentMail: false,
@@ -195,6 +200,7 @@ const AdminDashboard = () => {
                     <TableHead>Department</TableHead>
                     <TableHead>Clause ID</TableHead>
                     <TableHead>IQR Number</TableHead>
+                    <TableHead>Nonconformity Type</TableHead>
                     <TableHead>Created Date</TableHead>
                     <TableHead className="w-[200px] text-right">Actions</TableHead>
                   </TableRow>
@@ -202,7 +208,7 @@ const AdminDashboard = () => {
                 <TableBody>
                   {reports.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center text-muted-foreground">
                         No reports created yet.
                       </TableCell>
                     </TableRow>
@@ -216,6 +222,7 @@ const AdminDashboard = () => {
                         departments={departments}
                         clauseIDs={clauseIDs}
                         iqrNumbers={iqrNumbers}
+                        nonConformityTypes={nonConformityTypes}
                       />
                     ))
                   )}

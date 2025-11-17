@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Check, Lock } from 'lucide-react';
-import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
+import { getDepartments, getClauseIDs, getIQRNumbers, getNonConformityTypes, SetupItem } from '@/lib/data-storage';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PdfTextDisplay from '@/components/PdfTextDisplay';
@@ -22,6 +22,7 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
   const departments = getDepartments();
   const clauseIDs = getClauseIDs();
   const iqrNumbers = getIQRNumbers();
+  const nonConformityTypes = getNonConformityTypes();
 
   // Helper to update fields within section1
   const handleSection1InputChange = (field: keyof NCARReport['section1'], value: string | boolean) => {
@@ -39,8 +40,8 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
     if (!isAdmin || report.status !== 'Draft') return;
 
     // Check if required fields (including identification fields) and nonConformityDetails are filled before attempting to lock
-    if (!report.section1.departmentId || !report.section1.clauseId || !report.section1.iqrNumberId || !report.section1.dateRaised || !report.section1.personResponsible || !report.section1.nonConformityDetails) {
-        toast.error("Please ensure all required fields (Identification, Date Raised, Person Responsible, and Non-Conformity Details) are filled before locking Section 1.");
+    if (!report.section1.departmentId || !report.section1.clauseId || !report.section1.iqrNumberId || !report.section1.nonConformityTypeId || !report.section1.dateRaised || !report.section1.personResponsible || !report.section1.nonConformityDetails) {
+        toast.error("Please ensure all required fields (Identification, Type of Nonconformity, Date Raised, Person Responsible, and Non-Conformity Details) are filled before locking Section 1.");
         return;
     }
 
@@ -169,6 +170,16 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
           'IQR Number', 
           iqrNumbers, 
           'Select IQR Number'
+        )}
+      </div>
+      
+      {/* Type of Nonconformity */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {renderSelectOrInput(
+          'nonConformityTypeId', 
+          'Type of Nonconformity', 
+          nonConformityTypes, 
+          'Select Type'
         )}
       </div>
 

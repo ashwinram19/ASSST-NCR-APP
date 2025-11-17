@@ -13,6 +13,8 @@ export type NCARReport = {
     departmentId: string;
     clauseId: string;
     iqrNumberId: string;
+    nonConformityTypeId: string; // NEW FIELD
+
     // End Report Identification Fields
 
     nonConformityDetails: string;
@@ -71,6 +73,10 @@ export const loadReports = (): NCARReport[] => {
     return reports.map(report => ({
       ...report,
       section6: report.section6 || { attachmentNotes: '' },
+      section1: {
+        ...report.section1,
+        nonConformityTypeId: report.section1.nonConformityTypeId || '', // Initialize new field
+      }
     }));
   } catch (e) {
     console.error('Error loading reports:', e);

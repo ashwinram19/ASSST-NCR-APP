@@ -7,6 +7,7 @@ const storageKeys = {
   departments: 'nc_car_departments',
   clauseIds: 'nc_car_clause_ids',
   iqrNumbers: 'nc_car_iqr_numbers',
+  nonConformityTypes: 'nc_car_nonconformity_types',
 };
 
 const loadData = (key: string): SetupItem[] => {
@@ -35,3 +36,6 @@ export const saveClauseIDs = (data: SetupItem[]) => saveData(storageKeys.clauseI
 
 export const getIQRNumbers = () => loadData(storageKeys.iqrNumbers);
 export const saveIQRNumbers = (data: SetupItem[]) => saveData(storageKeys.iqrNumbers, data);
+
+export const getNonConformityTypes = () => loadData(storageKeys.nonConformityTypes);
+export const saveNonConformityTypes = (data: SetupItem[]) => saveData(storageKeys.nonConformityTypes, data);

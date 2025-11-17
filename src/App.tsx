@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import DepartmentsSetup from "./pages/admin/DepartmentsSetup";
 import ClauseIDSetup from "./pages/admin/ClauseIDSetup";
 import IQRNumberSetup from "./pages/admin/IQRNumberSetup";
+import NonconformityTypeSetup from "./pages/admin/NonconformityTypeSetup";
 import UserDashboard from "./pages/user/UserDashboard";
 import NCARReportForm from "./pages/NCARReportForm";
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="setup/departments" element={<DepartmentsSetup />} />
             <Route path="setup/clause-id" element={<ClauseIDSetup />} />
             <Route path="setup/iqr-number" element={<IQRNumberSetup />} />
+            <Route path="setup/nonconformity-type" element={<NonconformityTypeSetup />} />
             <Route path="report/:reportId" element={<NCARReportForm />} />
           </Route>
 
