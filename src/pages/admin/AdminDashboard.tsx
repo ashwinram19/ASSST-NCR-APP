@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, FileText } from 'lucide-react';
+import { Pencil, Trash2, FileText, ArrowUpDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { loadReports, deleteReport, NCARReport, saveReport } from '@/lib/report-storage';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -9,6 +9,13 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import NewReportForm from '@/components/NewReportForm';
 import { getDepartments, getClauseIDs, getIQRNumbers, getNonConformityTypes, SetupItem } from '@/lib/data-storage';
+
+// Define SortConfig type
+type SortKey = 'name' | 'departmentId' | 'clauseId' | 'iqrNumberId' | 'createdAt';
+type SortConfig = {
+  key: SortKey;
+  direction: 'ascending' | 'descending';
+};
 
 // Helper function to find name by ID
 const findNameById = (id: string, list: SetupItem[]) => list.find(item => item.id === id)?.name || 'N/A';
@@ -103,6 +110,9 @@ const AdminDashboard = () => {
   const [clauseIDs, setClauseIDs] = React.useState<SetupItem[]>([]);
   const [iqrNumbers, setIqrNumbers] = React.useState<SetupItem[]>([]);
   const [nonConformityTypes, setNonConformityTypes] = React.useState<SetupItem[]>([]);
+  
+  // Initialize sorting state, default to sorting by creation date descending
+  const [sortConfig, setSortConfig] = React.useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
 
 
   const loadSetupData = () => {
@@ -113,8 +123,7 @@ const AdminDashboard = () => {
   };
 
   const refreshReports = () => {
-    // Sort by creation date descending
-    setReports(loadReports().sort((a, b) => b.createdAt - a.createdAt));
+    setReports(loadReports());
   };
 
   React.useEffect(() => {
@@ -176,6 +185,72 @@ const AdminDashboard = () => {
     saveReport(updatedReport);
     refreshReports();
   };
+  
+  // --- Sorting Logic ---
+  const requestSort = (key: SortKey) => {
+    let direction: SortConfig['direction'] = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+        direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedReports = React.useMemo(() => {
+    let sortableReports = [...reports];
+    if (sortConfig !== null) {
+        sortableReports.sort((a, b) => {
+            let aValue: string | number;
+            let bValue: string | number;
+
+            if (sortConfig.key === 'name') {
+                aValue = a.name.toLowerCase();
+                bValue = b.name.toLowerCase();
+            } else if (sortConfig.key === 'createdAt') {
+                aValue = a.createdAt;
+                bValue = b.createdAt;
+            } else {
+                // Lookup fields (departmentId, clauseId, iqrNumberId)
+                const lookupData = 
+                    sortConfig.key === 'departmentId' ? departments :
+                    sortConfig.key === 'clauseId' ? clauseIDs :
+                    sortConfig.key === 'iqrNumberId' ? iqrNumbers :
+                    []; 
+
+                const aId = a.section1[sortConfig.key as 'departmentId' | 'clauseId' | 'iqrNumberId'] || '';
+                const bId = b.section1[sortConfig.key as 'departmentId' | 'clauseId' | 'iqrNumberId'] || '';
+
+                aValue = findNameById(aId, lookupData).toLowerCase();
+                bValue = findNameById(bId, lookupData).toLowerCase();
+            }
+
+            if (aValue < bValue) {
+                return sortConfig.direction === 'ascending' ? -1 : 1;
+            }
+            if (aValue > bValue) {
+                return sortConfig.direction === 'ascending' ? 1 : -1;
+            }
+            return 0;
+        });
+    }
+    return sortableReports;
+  }, [reports, sortConfig, departments, clauseIDs, iqrNumbers]);
+
+  // Helper for rendering sortable headers
+  const renderSortableHeader = (key: SortKey, label: string) => (
+    <TableHead 
+      className="cursor-pointer hover:bg-muted/50 transition-colors"
+      onClick={() => requestSort(key)}
+    >
+      <div className="flex items-center">
+        {label}
+        <ArrowUpDown className={
+            `ml-2 h-4 w-4 ${sortConfig.key === key ? 'opacity-100' : 'opacity-40'}`
+        } />
+      </div>
+    </TableHead>
+  );
+  // --- End Sorting Logic ---
+
 
   return (
     <div className="p-6">
@@ -194,25 +269,25 @@ const AdminDashboard = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Report Name</TableHead>
+                    {renderSortableHeader('name', 'Report Name')}
                     <TableHead>Status</TableHead>
-                    <TableHead>Department</TableHead>
-                    <TableHead>ISO Clause ID</TableHead>
-                    <TableHead>IQR Number</TableHead>
+                    {renderSortableHeader('departmentId', 'Department')}
+                    {renderSortableHeader('clauseId', 'ISO Clause ID')}
+                    {renderSortableHeader('iqrNumberId', 'IQR Number')}
                     <TableHead>Nonconformity Type</TableHead>
-                    <TableHead>Created Date</TableHead>
+                    {renderSortableHeader('createdAt', 'Created Date')}
                     <TableHead className="w-[200px] text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {reports.length === 0 ? (
+                  {sortedReports.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={8} className="text-center text-muted-foreground">
                         No reports created yet.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    reports.map((report) => (
+                    sortedReports.map((report) => (
                       <ReportRow 
                         key={report.id} 
                         report={report} 
