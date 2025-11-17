@@ -252,18 +252,20 @@ const NCARReportForm = () => {
                   >
                       <AccordionTrigger>Section 1: Non-Conformity Details</AccordionTrigger>
                       <AccordionContent>
-                          <Section1Details
-                              report={report}
-                              onUpdate={handleUpdateReport}
-                              isEditable={isSection1Editable}
-                              isAdmin={isAdmin}
-                              isPdfExporting={isPdfExporting}
-                          />
+                          <div className={cn(isPdfExporting && 'break-inside-avoid')}>
+                              <Section1Details
+                                  report={report}
+                                  onUpdate={handleUpdateReport}
+                                  isEditable={isSection1Editable}
+                                  isAdmin={isAdmin}
+                                  isPdfExporting={isPdfExporting}
+                              />
+                          </div>
                       </AccordionContent>
                   </AccordionItem>
 
                   {/* Collaborators Field */}
-                  <div className={cn("p-4 border-b")}>
+                  <div className={cn("p-4 border-b", isPdfExporting && 'break-inside-avoid')}>
                       <Label htmlFor="collaborators">Collaborators (Enter names separated by comma)</Label>
                       {isPdfExporting ? (
                           <PdfTextDisplay value={report.collaborators} />
@@ -289,12 +291,14 @@ const NCARReportForm = () => {
                           {getSectionStatusIcon('Section 2')}
                       </AccordionTrigger>
                       <AccordionContent>
-                          <Section2Correction
-                              report={report}
-                              onUpdate={handleUpdateReport}
-                              isEditable={isSections2to5Editable}
-                              isPdfExporting={isPdfExporting}
-                          />
+                          <div className={cn(isPdfExporting && 'break-inside-avoid')}>
+                              <Section2Correction
+                                  report={report}
+                                  onUpdate={handleUpdateReport}
+                                  isEditable={isSections2to5Editable}
+                                  isPdfExporting={isPdfExporting}
+                              />
+                          </div>
                       </AccordionContent>
                   </AccordionItem>
 
@@ -308,12 +312,14 @@ const NCARReportForm = () => {
                           {getSectionStatusIcon('Section 3')}
                       </AccordionTrigger>
                       <AccordionContent>
-                          <Section3CorrectiveAction
-                              report={report}
-                              onUpdate={handleUpdateReport}
-                              isEditable={isSections2to5Editable}
-                              isPdfExporting={isPdfExporting}
-                          />
+                          <div className={cn(isPdfExporting && 'break-inside-avoid')}>
+                              <Section3CorrectiveAction
+                                  report={report}
+                                  onUpdate={handleUpdateReport}
+                                  isEditable={isSections2to5Editable}
+                                  isPdfExporting={isPdfExporting}
+                              />
+                          </div>
                       </AccordionContent>
                   </AccordionItem>
 
@@ -327,12 +333,14 @@ const NCARReportForm = () => {
                           {getSectionStatusIcon('Section 4')}
                       </AccordionTrigger>
                       <AccordionContent>
-                          <Section4RootCauseAnalysis
-                              report={report}
-                              onUpdate={handleUpdateReport}
-                              isEditable={isSections2to5Editable}
-                              isPdfExporting={isPdfExporting}
-                          />
+                          <div className={cn(isPdfExporting && 'break-inside-avoid')}>
+                              <Section4RootCauseAnalysis
+                                  report={report}
+                                  onUpdate={handleUpdateReport}
+                                  isEditable={isSections2to5Editable}
+                                  isPdfExporting={isPdfExporting}
+                              />
+                          </div>
                       </AccordionContent>
                   </AccordionItem>
 
@@ -346,12 +354,14 @@ const NCARReportForm = () => {
                           {getSectionStatusIcon('Section 5')}
                       </AccordionTrigger>
                       <AccordionContent>
-                          <Section5Verification
-                              report={report}
-                              onUpdate={handleUpdateReport}
-                              isEditable={isSections2to5Editable}
-                              isPdfExporting={isPdfExporting}
-                          />
+                          <div className={cn(isPdfExporting && 'break-inside-avoid')}>
+                              <Section5Verification
+                                  report={report}
+                                  onUpdate={handleUpdateReport}
+                                  isEditable={isSections2to5Editable}
+                                  isPdfExporting={isPdfExporting}
+                              />
+                          </div>
                       </AccordionContent>
                   </AccordionItem>
                   
@@ -362,12 +372,14 @@ const NCARReportForm = () => {
                           {isReportVerified ? null : <Lock className="ml-2 h-4 w-4 text-muted-foreground" />}
                       </AccordionTrigger>
                       <AccordionContent>
-                          <Section6Attachments
-                              report={report}
-                              onUpdate={handleUpdateReport}
-                              isEditable={isSection6Editable}
-                              isPdfExporting={isPdfExporting}
-                          />
+                          <div className={cn(isPdfExporting && 'break-inside-avoid')}>
+                              <Section6Attachments
+                                  report={report}
+                                  onUpdate={handleUpdateReport}
+                                  isEditable={isSection6Editable}
+                                  isPdfExporting={isPdfExporting}
+                              />
+                          </div>
                       </AccordionContent>
                   </AccordionItem>
               </Accordion>
