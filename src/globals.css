@@ -118,16 +118,24 @@
 .pdf-export-mode input, 
 .pdf-export-mode textarea,
 .pdf-export-mode .text-sm,
-.pdf-export-mode .text-base {
+.pdf-export-mode .text-base,
+.pdf-export-mode .select-trigger {
   font-size: 0.7rem !important;
 }
 
 /* Specific styling for inputs and textareas to reduce vertical space and ensure text visibility */
 .pdf-export-mode input,
-.pdf-export-mode textarea {
-    padding: 0.2rem 0.5rem !important; /* Reduced padding */
-    height: auto !important; /* Allow height to shrink */
-    min-height: 30px !important; /* Ensure minimum height for inputs */
+.pdf-export-mode textarea,
+.pdf-export-mode .select-trigger {
+    padding: 0.1rem 0.5rem !important; /* Reduced padding */
+    height: 25px !important; /* Fixed small height for single-line inputs/selects */
+    min-height: 25px !important; 
+}
+
+/* Ensure textareas don't take up too much vertical space */
+.pdf-export-mode textarea.min-h-\[100px\] {
+    height: 50px !important; /* Fixed height for multi-line textareas */
+    min-height: 50px !important; 
 }
 
 /* Reduce padding/margin inside the report container */
@@ -146,9 +154,4 @@
   --space-y-reverse: 0;
   margin-top: calc(0.25rem * calc(1 - var(--space-y-reverse))) !important;
   margin-bottom: calc(0.25rem * var(--space-y-reverse)) !important;
-}
-
-/* Ensure textareas don't take up too much vertical space */
-.pdf-export-mode .min-h-\[100px\] {
-    min-height: 50px !important; 
 }
