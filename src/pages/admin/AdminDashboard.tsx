@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import NewReportForm from '@/components/NewReportForm';
 import { getDepartments, getClauseIDs, getIQRNumbers, getNonConformityTypes, SetupItem } from '@/lib/data-storage';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 // Define SortConfig type
 type SortKey = 'name' | 'departmentId' | 'clauseId' | 'iqrNumberId' | 'createdAt';
@@ -16,6 +18,17 @@ type SortConfig = {
   key: SortKey;
   direction: 'ascending' | 'descending';
 };
+
+// Define FilterState type
+type ReportStatusFilter = NCARReport['status'] | 'all';
+
+interface FilterState {
+  status: ReportStatusFilter;
+  departmentId: string | 'all';
+  clauseId: string | 'all';
+  iqrNumberId: string | 'all';
+  nonConformityTypeId: string | 'all';
+}
 
 // Helper function to find name by ID
 const findNameById = (id: string, list: SetupItem[]) => list.find(item => item.id === id)?.name || 'N/A';
@@ -114,6 +127,15 @@ const AdminDashboard = () => {
   // Initialize sorting state, default to sorting by creation date descending
   const [sortConfig, setSortConfig] = React.useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
 
+  // Initialize filtering state
+  const [filters, setFilters] = React.useState<FilterState>({
+    status: 'all',
+    departmentId: 'all',
+    clauseId: 'all',
+    iqrNumberId: 'all',
+    nonConformityTypeId: 'all',
+  });
+
 
   const loadSetupData = () => {
     setDepartments(getDepartments());
@@ -186,6 +208,11 @@ const AdminDashboard = () => {
     refreshReports();
   };
   
+  // Handle filter change
+  const handleFilterChange = (key: keyof FilterState, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
   // --- Sorting Logic ---
   const requestSort = (key: SortKey) => {
     let direction: SortConfig['direction'] = 'ascending';
@@ -195,8 +222,28 @@ const AdminDashboard = () => {
     setSortConfig({ key, direction });
   };
 
-  const sortedReports = React.useMemo(() => {
-    let sortableReports = [...reports];
+  const sortedAndFilteredReports = React.useMemo(() => {
+    let filteredReports = reports;
+
+    // 1. Filtering Logic
+    if (filters.status !== 'all') {
+      filteredReports = filteredReports.filter(r => r.status === filters.status);
+    }
+    if (filters.departmentId !== 'all') {
+      filteredReports = filteredReports.filter(r => r.section1.departmentId === filters.departmentId);
+    }
+    if (filters.clauseId !== 'all') {
+      filteredReports = filteredReports.filter(r => r.section1.clauseId === filters.clauseId);
+    }
+    if (filters.iqrNumberId !== 'all') {
+      filteredReports = filteredReports.filter(r => r.section1.iqrNumberId === filters.iqrNumberId);
+    }
+    if (filters.nonConformityTypeId !== 'all') {
+      filteredReports = filteredReports.filter(r => r.section1.nonConformityTypeId === filters.nonConformityTypeId);
+    }
+    
+    // 2. Sorting Logic
+    let sortableReports = [...filteredReports];
     if (sortConfig !== null) {
         sortableReports.sort((a, b) => {
             let aValue: string | number;
@@ -232,8 +279,9 @@ const AdminDashboard = () => {
             return 0;
         });
     }
+    
     return sortableReports;
-  }, [reports, sortConfig, departments, clauseIDs, iqrNumbers]);
+  }, [reports, filters, sortConfig, departments, clauseIDs, iqrNumbers, nonConformityTypes]);
 
   // Helper for rendering sortable headers
   const renderSortableHeader = (key: SortKey, label: string) => (
@@ -251,6 +299,41 @@ const AdminDashboard = () => {
   );
   // --- End Sorting Logic ---
 
+  // New component/function to render a filter select
+  const renderSelectFilter = (
+    key: keyof FilterState, 
+    label: string, 
+    options: SetupItem[] | { id: ReportStatusFilter, name: string }[]
+  ) => (
+    <div className="flex flex-col space-y-1">
+      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+      <Select
+        value={filters[key] as string}
+        onValueChange={(value) => handleFilterChange(key, value)}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder={`Filter by ${label}`} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All {label}s</SelectItem>
+          {options.map((item) => (
+            <SelectItem key={item.id} value={item.id}>
+              {item.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
+  // Define status options
+  const statusOptions: { id: ReportStatusFilter, name: string }[] = [
+    { id: 'Draft', name: 'Draft' },
+    { id: 'Section1Locked', name: 'In Progress (User Action)' },
+    { id: 'SubmittedForVerification', name: 'Submitted (Admin Action)' },
+    { id: 'Verified', name: 'Verified' },
+  ];
+
 
   return (
     <div className="p-6">
@@ -260,9 +343,35 @@ const AdminDashboard = () => {
       
       <NewReportForm onCreate={handleCreateReport} />
 
+      {/* Filter Bar */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg">Filter Reports</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-4">
+            {renderSelectFilter('status', 'Status', statusOptions)}
+            {renderSelectFilter('departmentId', 'Department', departments)}
+            {renderSelectFilter('clauseId', 'ISO Clause ID', clauseIDs)}
+            {renderSelectFilter('iqrNumberId', 'IQR Number', iqrNumbers)}
+            {renderSelectFilter('nonConformityTypeId', 'Nonconformity Type', nonConformityTypes)}
+            
+            {/* Reset Button */}
+            <div className="flex items-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setFilters({ status: 'all', departmentId: 'all', clauseId: 'all', iqrNumberId: 'all', nonConformityTypeId: 'all' })}
+              >
+                Reset Filters
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
-          <CardTitle>Existing Reports ({reports.length})</CardTitle>
+          <CardTitle>Existing Reports ({sortedAndFilteredReports.length})</CardTitle>
         </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -280,14 +389,14 @@ const AdminDashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedReports.length === 0 ? (
+                  {sortedAndFilteredReports.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={8} className="text-center text-muted-foreground">
-                        No reports created yet.
+                        No reports match the current filters.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    sortedReports.map((report) => (
+                    sortedAndFilteredReports.map((report) => (
                       <ReportRow 
                         key={report.id} 
                         report={report} 
