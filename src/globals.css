@@ -123,19 +123,30 @@
   font-size: 0.7rem !important;
 }
 
-/* Specific styling for inputs and textareas to reduce vertical space and ensure text visibility */
+/* Specific styling for inputs, textareas, and select triggers to remove UI and display as plain text */
 .pdf-export-mode input,
 .pdf-export-mode textarea,
 .pdf-export-mode .select-trigger {
-    padding: 0.1rem 0.5rem !important; /* Reduced padding */
-    height: 25px !important; /* Fixed small height for single-line inputs/selects */
-    min-height: 25px !important; 
+    /* Remove UI elements */
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    resize: none !important;
+    
+    /* Reset layout properties */
+    padding: 0 !important;
+    height: auto !important;
+    min-height: auto !important;
+    line-height: 1.2 !important; 
+    
+    /* Ensure text is visible */
+    color: var(--foreground) !important; 
 }
 
-/* Ensure textareas don't take up too much vertical space */
+/* Ensure textareas flow naturally */
 .pdf-export-mode textarea.min-h-\[100px\] {
-    height: 50px !important; /* Fixed height for multi-line textareas */
-    min-height: 50px !important; 
+    height: auto !important; 
+    min-height: auto !important; 
 }
 
 /* Reduce padding/margin inside the report container */
