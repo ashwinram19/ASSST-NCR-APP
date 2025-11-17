@@ -70,7 +70,7 @@ const AttachmentManager: React.FC<AttachmentManagerProps> = ({ notes, onUpdateNo
 
   return (
     <div className="space-y-4">
-      <Label>Attachments (Admin Only)</Label>
+      <Label>Attachments</Label>
       
       {isEditable && (
         <div className="flex items-center space-x-2">
