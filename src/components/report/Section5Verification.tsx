@@ -3,7 +3,7 @@ import { NCARReport, VerificationStep } from '@/lib/report-storage';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import PdfTextDisplay from '@/components/PdfTextDisplay';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
 interface SectionProps {
   report: NCARReport;
@@ -12,7 +12,6 @@ interface SectionProps {
   isPdfExporting: boolean;
 }
 
-const VERIFICATION_RESULTS = ['Pass', 'Fail', 'N/A'];
 const VERIFICATION_STEPS: Array<keyof NCARReport['section5']> = ['step1', 'step2', 'step3'];
 const DEFAULT_STEP: VerificationStep = { result: '', details: '' };
 
@@ -75,22 +74,13 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
         {/* Verification Result (3/12 width) */}
         <div className="col-span-3 space-y-2">
           {index === 0 && <Label>Verification Result</Label>}
-          <Select
+          <Input
             value={stepData.result}
-            onValueChange={(value) => handleStepChange(stepKey, 'result', value)}
-            disabled={!isEditable}
-          >
-            <SelectTrigger className={!isEditable ? 'bg-muted/50' : ''}>
-              <SelectValue placeholder="Select Result" />
-            </SelectTrigger>
-            <SelectContent>
-              {VERIFICATION_RESULTS.map((result) => (
-                <SelectItem key={result} value={result}>
-                  {result}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            onChange={(e) => handleStepChange(stepKey, 'result', e.target.value)}
+            readOnly={!isEditable}
+            className={!isEditable ? 'bg-muted/50' : ''}
+            placeholder="Enter Result (e.g., Pass/Fail/N/A)"
+          />
         </div>
 
         {/* Verification Details/Remarks (9/12 width) */}
