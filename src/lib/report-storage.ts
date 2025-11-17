@@ -1,7 +1,7 @@
 export type ReportStatus = 'Draft' | 'Section1Locked' | 'SubmittedForVerification' | 'Verified';
 
-export type VerificationItem = {
-  id: string;
+// New fixed structure for a single verification step
+export type VerificationStep = {
   result: string; // Verification Result (e.g., Pass, Fail, N/A)
   details: string; // Verification Details/Remarks
 };
@@ -35,7 +35,7 @@ export type NCARReport = {
   // Collaborators (User input field after Section 1)
   collaborators: string;
 
-  // Sections 2-5 (User/Admin editable after Section 1 lock, locked after verification)
+  // Sections 2-4 (User/Admin editable after Section 1 lock, locked after verification)
   section2: {
     correction: string;
     dateCompleted: string;
@@ -54,8 +54,12 @@ export type NCARReport = {
     reviewedBy: string; // New field
     approvedBy: string; // New field
   };
+  
+  // Section 5: Verification (Fixed 3 steps)
   section5: {
-    verificationItems: VerificationItem[]; // Dynamic rows
+    step1: VerificationStep;
+    step2: VerificationStep;
+    step3: VerificationStep;
     dateVerified: string;
     approvedBy: string; // Removed reviewedBy
   };
@@ -68,6 +72,8 @@ export type NCARReport = {
 
 const REPORT_STORAGE_KEY = 'nc_car_reports';
 
+const defaultVerificationStep: VerificationStep = { result: '', details: '' };
+
 export const loadReports = (): NCARReport[] => {
   try {
     const data = localStorage.getItem(REPORT_STORAGE_KEY);
@@ -76,29 +82,40 @@ export const loadReports = (): NCARReport[] => {
       // Safely destructure and omit qmsClauseReference if it exists in old data
       const { qmsClauseReference, ...restSection1 } = report.section1 || {};
       
-      // Migration for section5 structure
+      // Migration for section5 structure (from dynamic array verificationItems to fixed 3 steps)
       let section5Data: NCARReport['section5'];
       
-      // Check if verificationItems exists (new structure)
-      if (report.section5 && Array.isArray(report.section5.verificationItems)) {
-          section5Data = {
-              verificationItems: report.section5.verificationItems,
-              dateVerified: report.section5.dateVerified || '',
-              approvedBy: report.section5.approvedBy || '',
-          };
+      const defaultSection5: NCARReport['section5'] = {
+          step1: defaultVerificationStep,
+          step2: defaultVerificationStep,
+          step3: defaultVerificationStep,
+          dateVerified: '',
+          approvedBy: '',
+      };
+
+      if (report.section5) {
+          // Check if old dynamic structure exists (verificationItems)
+          if (Array.isArray(report.section5.verificationItems)) {
+              const items = report.section5.verificationItems;
+              section5Data = {
+                  step1: items[0] || defaultVerificationStep,
+                  step2: items[1] || defaultVerificationStep,
+                  step3: items[2] || defaultVerificationStep,
+                  dateVerified: report.section5.dateVerified || '',
+                  approvedBy: report.section5.approvedBy || '',
+              };
+          } else {
+              // Assume new fixed structure or initialize from scratch
+              section5Data = {
+                  step1: report.section5.step1 || defaultVerificationStep,
+                  step2: report.section5.step2 || defaultVerificationStep,
+                  step3: report.section5.step3 || defaultVerificationStep,
+                  dateVerified: report.section5.dateVerified || '',
+                  approvedBy: report.section5.approvedBy || '',
+              };
+          }
       } else {
-          // Old structure migration (or initialization)
-          const oldDetails = report.section5?.verificationDetails || '';
-          
-          section5Data = {
-              verificationItems: oldDetails ? [{
-                  id: Date.now().toString(), // Assign a unique ID for migration
-                  result: 'N/A', 
-                  details: oldDetails,
-              }] : [],
-              dateVerified: report.section5?.dateVerified || '',
-              approvedBy: report.section5?.approvedBy || '',
-          };
+          section5Data = defaultSection5;
       }
       
       // Ensure sections are initialized correctly

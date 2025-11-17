@@ -187,7 +187,13 @@ const AdminDashboard = () => {
       section2: { correction: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
       section3: { correctiveAction: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
       section4: { rootCauseAnalysis: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
-      section5: { verificationItems: [], dateVerified: '', approvedBy: '' }, // Updated initialization
+      section5: { 
+        step1: { result: '', details: '' },
+        step2: { result: '', details: '' },
+        step3: { result: '', details: '' },
+        dateVerified: '', 
+        approvedBy: '' 
+      }, // Updated initialization to fixed 3 steps
       section6: { attachmentNotes: '' }, // Initialize new section
     };
 

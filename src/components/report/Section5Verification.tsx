@@ -1,11 +1,7 @@
 import React from 'react';
-import { NCARReport, VerificationItem } from '@/lib/report-storage';
-import { Input } from '@/components/ui/input';
+import { NCARReport, VerificationStep } from '@/lib/report-storage';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Trash2, PlusCircle } from 'lucide-react';
-import { toast } from 'sonner';
 import PdfTextDisplay from '@/components/PdfTextDisplay';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -17,52 +13,27 @@ interface SectionProps {
 }
 
 const VERIFICATION_RESULTS = ['Pass', 'Fail', 'N/A'];
+const VERIFICATION_STEPS: Array<keyof NCARReport['section5']> = ['step1', 'step2', 'step3'];
 
 const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
-  const { verificationItems, approvedBy } = report.section5;
+  const { approvedBy } = report.section5;
 
-  const handleItemChange = (id: string, field: keyof VerificationItem, value: string) => {
+  const handleStepChange = (stepKey: keyof NCARReport['section5'], field: keyof VerificationStep, value: string) => {
     if (!isEditable) return;
-    const updatedItems = verificationItems.map(item =>
-      item.id === id ? { ...item, [field]: value } : item
-    );
+    
+    // Ensure stepKey is one of the fixed steps
+    if (!VERIFICATION_STEPS.includes(stepKey as 'step1' | 'step2' | 'step3')) return;
+
     onUpdate({
       ...report,
       section5: {
         ...report.section5,
-        verificationItems: updatedItems,
+        [stepKey]: {
+            ...report.section5[stepKey as 'step1' | 'step2' | 'step3'],
+            [field]: value,
+        },
       },
     });
-  };
-
-  const handleAddItem = () => {
-    if (!isEditable) return;
-    const newItem: VerificationItem = {
-      id: Date.now().toString(),
-      result: 'N/A',
-      details: '',
-    };
-    onUpdate({
-      ...report,
-      section5: {
-        ...report.section5,
-        verificationItems: [...verificationItems, newItem],
-      },
-    });
-    toast.info("New verification step added.");
-  };
-
-  const handleRemoveItem = (id: string) => {
-    if (!isEditable) return;
-    const updatedItems = verificationItems.filter(item => item.id !== id);
-    onUpdate({
-      ...report,
-      section5: {
-        ...report.section5,
-        verificationItems: updatedItems,
-      },
-    });
-    toast.success("Verification step removed.");
   };
 
   // Renders the combined approval sentence
@@ -77,34 +48,34 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
     );
   };
 
-  const renderVerificationItem = (item: VerificationItem, index: number) => {
+  const renderVerificationRow = (stepKey: keyof NCARReport['section5'], index: number) => {
+    const stepData = report.section5[stepKey as 'step1' | 'step2' | 'step3'];
+    
     if (isPdfExporting) {
         // Use a simple block layout for PDF to ensure content flows and breaks correctly
         return (
-            <div key={item.id} className="border-b py-2 break-inside-avoid">
-                <p className="text-xs font-semibold mb-1">Verification Step {index + 1}</p>
-                <div className="flex space-x-4 mb-1">
-                    <div className="w-1/4">
-                        <Label className="font-medium">Result:</Label>
-                        <PdfTextDisplay value={item.result} className="!p-0 !border-none !bg-transparent" />
-                    </div>
-                    <div className="w-3/4">
-                        <Label className="font-medium">Details/Remarks:</Label>
-                        <PdfTextDisplay value={item.details} className="!p-0 !border-none !bg-transparent" />
-                    </div>
+            <div key={stepKey} className="grid grid-cols-3 border-b border-gray-300 dark:border-gray-700 break-inside-avoid">
+                {/* Result Column (1/3 width) */}
+                <div className="p-1 border-r border-gray-300 dark:border-gray-700">
+                    <PdfTextDisplay value={stepData.result} className="!p-0 !border-none !bg-transparent !text-xs" />
+                </div>
+                {/* Details Column (2/3 width) */}
+                <div className="col-span-2 p-1">
+                    <PdfTextDisplay value={stepData.details} className="!p-0 !border-none !bg-transparent !text-xs" />
                 </div>
             </div>
         );
     }
 
+    // Standard UI view
     return (
-      <div key={item.id} className="grid grid-cols-12 gap-4 p-3 border rounded-md bg-background/50 items-start">
-        {/* Verification Result */}
-        <div className="col-span-4 space-y-2">
-          <Label>Verification Result</Label>
+      <div key={stepKey} className="grid grid-cols-12 gap-4 items-start">
+        {/* Verification Result (3/12 width) */}
+        <div className="col-span-3 space-y-2">
+          {index === 0 && <Label>Verification Result</Label>}
           <Select
-            value={item.result}
-            onValueChange={(value) => handleItemChange(item.id, 'result', value)}
+            value={stepData.result}
+            onValueChange={(value) => handleStepChange(stepKey, 'result', value)}
             disabled={!isEditable}
           >
             <SelectTrigger className={!isEditable ? 'bg-muted/50' : ''}>
@@ -120,69 +91,47 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
           </Select>
         </div>
 
-        {/* Verification Details/Remarks */}
-        <div className="col-span-7 space-y-2">
-          <Label>Verification Details/Remarks</Label>
+        {/* Verification Details/Remarks (9/12 width) */}
+        <div className="col-span-9 space-y-2">
+          {index === 0 && <Label>Verification Details/Remarks</Label>}
           <Textarea
-            value={item.details}
-            onChange={(e) => handleItemChange(item.id, 'details', e.target.value)}
+            value={stepData.details}
+            onChange={(e) => handleStepChange(stepKey, 'details', e.target.value)}
             readOnly={!isEditable}
             className={!isEditable ? 'bg-muted/50 min-h-[50px]' : 'min-h-[50px]'}
-            placeholder="Document verification details..."
+            placeholder={`Step ${index + 1} details...`}
           />
-        </div>
-
-        {/* Action Button */}
-        <div className="col-span-1 flex justify-end pt-8">
-          {isEditable && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleRemoveItem(item.id)}
-              className="text-destructive hover:bg-destructive/10"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
         </div>
       </div>
     );
   };
 
-  if (isPdfExporting) {
-    return (
-        <div className="space-y-4">
-            <h4 className="text-base font-semibold">Verification Log</h4>
-            <div className="space-y-2 border p-2">
-                {verificationItems.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No verification steps documented.</p>
-                ) : (
-                    verificationItems.map((item, index) => renderVerificationItem(item, index))
-                )}
-            </div>
-            
-            <div className="grid grid-cols-1 pt-4 border-t">
-                {renderApprovalStamp()}
-            </div>
-        </div>
-    );
-  }
+  // PDF Header for the table
+  const renderPdfHeader = () => (
+    <div className="grid grid-cols-3 bg-green-600 text-white font-bold text-center text-xs">
+        <div className="p-1 border-r border-white">Verification Result</div>
+        <div className="col-span-2 p-1">Verification Details/Remarks</div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <h4 className="text-lg font-semibold">Verification Log</h4>
-        {verificationItems.length === 0 && (
-          <p className="text-sm text-muted-foreground">No verification steps documented yet.</p>
-        )}
-        <div className="space-y-4">
-          {verificationItems.map((item, index) => renderVerificationItem(item, index))}
-        </div>
+        <h4 className="text-lg font-semibold">Verification Log (3 Fixed Steps)</h4>
         
-        {isEditable && (
-          <Button onClick={handleAddItem} variant="outline" className="w-full">
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Verification Step
-          </Button>
+        {isPdfExporting ? (
+            <div className="border border-gray-300 dark:border-gray-700">
+                {renderPdfHeader()}
+                {VERIFICATION_STEPS.map((stepKey, index) => renderVerificationRow(stepKey, index))}
+            </div>
+        ) : (
+            <div className="space-y-4">
+                {VERIFICATION_STEPS.map((stepKey, index) => renderVerificationRow(stepKey, index))}
+            </div>
+        )}
+        
+        {!isEditable && !isPdfExporting && (
+            <p className="text-sm text-muted-foreground">Verification steps are read-only.</p>
         )}
       </div>
 
