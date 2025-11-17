@@ -25,14 +25,22 @@ const SetupListManager: React.FC<SetupListManagerProps> = ({ title, data: initia
   }, [initialData]);
 
   const handleAddItem = () => {
-    if (newItemName.trim() === '') {
+    const trimmedName = newItemName.trim();
+    if (trimmedName === '') {
       toast.error(`Please enter a valid ${itemName} name.`);
       return;
     }
     
+    // Check for duplicates
+    const isDuplicate = data.some(item => item.name.toLowerCase() === trimmedName.toLowerCase());
+    if (isDuplicate) {
+      toast.error(`A ${itemName} with the name "${trimmedName}" already exists.`);
+      return;
+    }
+
     const newItem: SetupItem = {
       id: Date.now().toString(),
-      name: newItemName.trim(),
+      name: trimmedName,
     };
     
     const updatedData = [...data, newItem];
@@ -55,13 +63,24 @@ const SetupListManager: React.FC<SetupListManagerProps> = ({ title, data: initia
   };
 
   const handleSaveEdit = () => {
-    if (editingName.trim() === '') {
+    const trimmedName = editingName.trim();
+    if (trimmedName === '') {
       toast.error(`Please enter a valid ${itemName} name.`);
       return;
     }
     
+    // Check for duplicates, excluding the item currently being edited
+    const isDuplicate = data.some(
+      item => item.id !== editingId && item.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    
+    if (isDuplicate) {
+      toast.error(`A ${itemName} with the name "${trimmedName}" already exists.`);
+      return;
+    }
+
     const updatedData = data.map(item => 
-      item.id === editingId ? { ...item, name: editingName.trim() } : item
+      item.id === editingId ? { ...item, name: trimmedName } : item
     );
     
     setData(updatedData);
