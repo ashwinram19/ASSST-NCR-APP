@@ -18,14 +18,32 @@ import Section4RootCauseAnalysis from '@/components/report/Section4RootCauseAnal
 import Section5Verification from '@/components/report/Section5Verification';
 import Section6Attachments from '@/components/report/Section6Attachments';
 
+// PDF Utility Imports
+import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
+import { generateNCARReportPdf } from '@/utils/pdf-generator';
+
 const NCARReportForm = () => {
   const { reportId } = useParams<{ reportId: string }>();
   const navigate = useNavigate();
   const { isAdmin, isUser } = useAuth();
   const [report, setReport] = React.useState<NCARReport | null>(null);
   const [loading, setLoading] = React.useState(true);
+  
+  // State for setup data needed for PDF generation
+  const [setupData, setSetupData] = React.useState<{
+    departments: SetupItem[];
+    clauseIDs: SetupItem[];
+    iqrNumbers: SetupItem[];
+  }>({ departments: [], clauseIDs: [], iqrNumbers: [] });
 
   React.useEffect(() => {
+    // Load setup data
+    setSetupData({
+      departments: getDepartments(),
+      clauseIDs: getClauseIDs(),
+      iqrNumbers: getIQRNumbers(),
+    });
+
     if (reportId) {
       const loadedReport = getReportById(reportId);
       if (loadedReport) {
@@ -90,6 +108,14 @@ const NCARReportForm = () => {
     };
     handleUpdateReport(verifiedReport);
     toast.success(`Report ${report.name} verified and closed. Sections 2-5 are now locked.`);
+  };
+  
+  const handleDownloadPdf = () => {
+    if (report && report.status === 'Verified') {
+        generateNCARReportPdf(report, setupData);
+    } else {
+        toast.error("Report must be Verified to download the PDF.");
+    }
   };
 
   if (loading) {
@@ -273,7 +299,7 @@ const NCARReportForm = () => {
             <Button variant="outline" disabled>
               <Download className="mr-2 h-4 w-4" /> Word
             </Button>
-            <Button variant="outline" disabled>
+            <Button variant="default" onClick={handleDownloadPdf}>
               <Download className="mr-2 h-4 w-4" /> PDF
             </Button>
           </div>
