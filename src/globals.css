@@ -112,6 +112,8 @@
 /* Add page break utility for PDF export mode */
 .pdf-export-mode .page-break-after {
   break-after: page !important;
+  /* Attempt to prevent content inside this element from splitting across pages */
+  break-inside: avoid !important; 
 }
 
 .pdf-export-mode h1 {
