@@ -98,7 +98,7 @@ const NCARReportForm = () => {
     if (!report || !isUser || report.status !== 'Section1Locked') return;
 
     if (!validateSections2to5(report)) {
-        toast.error("Please ensure all fields in Sections 2 through 5 are completed before submitting.");
+        toast.error("Please ensure all fields in Sections 2 through 6 are completed before submitting.");
         return;
     }
 
@@ -124,7 +124,7 @@ const NCARReportForm = () => {
     handleUpdateReport(verifiedReport);
     // When verified, ensure all sections are open for final view
     setOpenAccordionItems(ALL_SECTIONS);
-    toast.success(`Report ${report.name} verified and closed. Sections 2-5 are now locked.`);
+    toast.success(`Report ${report.name} verified and closed. Sections 2-6 are now locked.`);
   };
   
   const handleDownloadPdf = async () => {
@@ -215,12 +215,7 @@ const NCARReportForm = () => {
   // New variable to determine if download buttons should be visible
   const isDownloadable = isReportVerified || isSubmitted; 
   
-  const getSectionStatusIcon = (sectionName: string) => {
-    if (report.status === 'Draft' && sectionName !== 'Section 1') {
-        return <Lock className="ml-2 h-4 w-4 text-muted-foreground" />;
-    }
-    return null;
-  }
+  // Note: getSectionStatusIcon removed, using inline lock logic now.
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -294,7 +289,7 @@ const NCARReportForm = () => {
                   >
                       <AccordionTrigger disabled={report.status === 'Draft'}>
                           Section 2: Correction
-                          {getSectionStatusIcon('Section 2')}
+                          {report.status === 'Draft' && <Lock className="ml-2 h-4 w-4 text-muted-foreground" />}
                       </AccordionTrigger>
                       <AccordionContent>
                           <div className={cn(isPdfExporting && 'break-inside-avoid')}>
@@ -315,7 +310,7 @@ const NCARReportForm = () => {
                   >
                       <AccordionTrigger disabled={report.status === 'Draft'}>
                           Section 3: Corrective Action
-                          {getSectionStatusIcon('Section 3')}
+                          {report.status === 'Draft' && <Lock className="ml-2 h-4 w-4 text-muted-foreground" />}
                       </AccordionTrigger>
                       <AccordionContent>
                           <div className={cn(isPdfExporting && 'break-inside-avoid')}>
@@ -336,7 +331,7 @@ const NCARReportForm = () => {
                   >
                       <AccordionTrigger disabled={report.status === 'Draft'}>
                           Section 4: Root Cause Analysis
-                          {getSectionStatusIcon('Section 4')}
+                          {report.status === 'Draft' && <Lock className="ml-2 h-4 w-4 text-muted-foreground" />}
                       </AccordionTrigger>
                       <AccordionContent>
                           <div className={cn(isPdfExporting && 'break-inside-avoid')}>
@@ -349,32 +344,11 @@ const NCARReportForm = () => {
                           </div>
                       </AccordionContent>
                   </AccordionItem>
-
-                  {/* Section 5: Verification */}
-                  <AccordionItem 
-                    value="section-5"
-                    className={cn(isPdfExporting && 'page-break-after')}
-                  >
-                      <AccordionTrigger disabled={report.status === 'Draft'}>
-                          Section 5: Verification of Implementation and Effectiveness
-                          {getSectionStatusIcon('Section 5')}
-                      </AccordionTrigger>
-                      <AccordionContent>
-                          <div className={cn(isPdfExporting && 'break-inside-avoid')}>
-                              <Section5Verification
-                                  report={report}
-                                  onUpdate={handleUpdateReport}
-                                  isEditable={isSections2to5Editable}
-                                  isPdfExporting={isPdfExporting}
-                              />
-                          </div>
-                      </AccordionContent>
-                  </AccordionItem>
                   
-                  {/* Section 6: Attachments (Admin Only) - NO BREAK AFTER THIS */}
+                  {/* SWAPPED: NEW Section 5 (Uses section-6 data/component) */}
                   <AccordionItem value="section-6">
                       <AccordionTrigger>
-                          Section 6: Attachments / Verification Notes
+                          Section 5: Attachments / Verification Notes
                           {isReportVerified ? null : <Lock className="ml-2 h-4 w-4 text-muted-foreground" />}
                       </AccordionTrigger>
                       <AccordionContent>
@@ -383,6 +357,27 @@ const NCARReportForm = () => {
                                   report={report}
                                   onUpdate={handleUpdateReport}
                                   isEditable={isSection6Editable}
+                                  isPdfExporting={isPdfExporting}
+                              />
+                          </div>
+                      </AccordionContent>
+                  </AccordionItem>
+
+                  {/* SWAPPED: NEW Section 6 (Uses section-5 data/component) */}
+                  <AccordionItem 
+                    value="section-5"
+                    className={cn(isPdfExporting && 'page-break-after')}
+                  >
+                      <AccordionTrigger disabled={report.status === 'Draft'}>
+                          Section 6: Verification of Implementation and Effectiveness
+                          {report.status === 'Draft' && <Lock className="ml-2 h-4 w-4 text-muted-foreground" />}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                          <div className={cn(isPdfExporting && 'break-inside-avoid')}>
+                              <Section5Verification
+                                  report={report}
+                                  onUpdate={handleUpdateReport}
+                                  isEditable={isSections2to5Editable}
                                   isPdfExporting={isPdfExporting}
                               />
                           </div>
