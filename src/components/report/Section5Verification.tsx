@@ -109,7 +109,7 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <h4 className="text-lg font-semibold">Verification Log</h4>
+        {!isPdfExporting && <h4 className="text-lg font-semibold">Verification Log</h4>}
         
         {isPdfExporting ? (
             <div className="border border-gray-300 dark:border-gray-700">
