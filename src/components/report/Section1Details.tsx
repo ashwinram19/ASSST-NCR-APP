@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Check, Mail, Lock } from 'lucide-react';
+import { Check, Lock } from 'lucide-react';
 import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -33,13 +33,8 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
     });
   };
 
-  const handleLockSection = (field: 'adminAcknowledged' | 'adminSentMail') => {
+  const handleLockSection = () => {
     if (!isAdmin || report.status !== 'Draft') return;
-
-    const updatedSection1 = {
-      ...report.section1,
-      [field]: true,
-    };
 
     // Check if required fields (including identification fields) and nonConformityDetails are filled before attempting to lock
     if (!report.section1.departmentId || !report.section1.clauseId || !report.section1.iqrNumberId || !report.section1.dateRaised || !report.section1.personResponsible || !report.section1.nonConformityDetails) {
@@ -47,23 +42,18 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         return;
     }
 
-    const isReadyToLock = (field === 'adminAcknowledged' ? true : report.section1.adminAcknowledged) && 
-                         (field === 'adminSentMail' ? true : report.section1.adminSentMail);
+    const updatedSection1 = {
+      ...report.section1,
+      adminAcknowledged: true,
+      adminSentMail: true, // Set true for consistency, even though the button is removed
+    };
 
-    if (isReadyToLock) {
-      onUpdate({
-        ...report,
-        status: 'Section1Locked',
-        section1: updatedSection1,
-      });
-      toast.success("Section 1 locked. Sections 2-5 are now editable by users.");
-    } else {
-      onUpdate({
-        ...report,
-        section1: updatedSection1,
-      });
-      toast.info(`Admin action recorded: ${field === 'adminSentMail' ? 'Mail Sent' : 'Acknowledged'}.`);
-    }
+    onUpdate({
+      ...report,
+      status: 'Section1Locked',
+      section1: updatedSection1,
+    });
+    toast.success("Section 1 locked. Sections 2-5 are now editable by users.");
   };
 
   const findNameById = (id: string, list: SetupItem[]) => list.find(item => item.id === id)?.name || 'N/A';
@@ -211,27 +201,19 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
 
       {/* Admin Actions (Locking Mechanism) */}
       {isAdmin && report.status === 'Draft' && (
-        <div className="pt-4 border-t flex space-x-4">
+        <div className="pt-4 border-t flex items-center space-x-4">
           <Button
-            onClick={() => handleLockSection('adminSentMail')}
-            disabled={report.section1.adminSentMail}
-            variant={report.section1.adminSentMail ? 'secondary' : 'default'}
-          >
-            {report.section1.adminSentMail ? <Check className="mr-2 h-4 w-4" /> : <Mail className="mr-2 h-4 w-4" />}
-            Send Mail
-          </Button>
-          <Button
-            onClick={() => handleLockSection('adminAcknowledged')}
+            onClick={handleLockSection}
             disabled={report.section1.adminAcknowledged}
             variant={report.section1.adminAcknowledged ? 'secondary' : 'default'}
           >
             {report.section1.adminAcknowledged ? <Check className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
-            Acknowledgment
+            Acknowledgment & Lock Section 1
           </Button>
-          <p className="text-sm text-muted-foreground self-center ml-4">
-            {report.section1.adminSentMail && report.section1.adminAcknowledged
+          <p className="text-sm text-muted-foreground">
+            {report.section1.adminAcknowledged
               ? 'Section 1 is locked.'
-              : 'Click both buttons to lock Section 1 and enable Sections 2-5.'}
+              : 'Click to finalize Section 1 and enable Sections 2-5 for user input.'}
           </p>
         </div>
       )}

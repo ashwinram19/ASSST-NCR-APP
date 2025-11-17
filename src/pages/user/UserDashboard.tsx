@@ -11,7 +11,7 @@ const UserDashboard = () => {
   const [reports, setReports] = React.useState<NCARReport[]>([]);
 
   React.useEffect(() => {
-    // Users only see reports that are Section1Locked (ready for their input) or Verified (for viewing).
+    // Users only see reports that are Section1Locked (ready for their input), SubmittedForVerification, or Verified (for viewing).
     setReports(loadReports().filter(r => r.status !== 'Draft'));
   }, []);
 
@@ -24,6 +24,8 @@ const UserDashboard = () => {
     switch (status) {
       case 'Section1Locked':
         return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Action Required</span>;
+      case 'SubmittedForVerification':
+        return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">Submitted</span>;
       case 'Verified':
         return <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Verified</span>;
       default:

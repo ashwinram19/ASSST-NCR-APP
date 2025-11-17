@@ -43,25 +43,45 @@ const NCARReportForm = () => {
   };
 
   const handleCollaboratorsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!report || report.status === 'Verified') return;
+    if (!report || report.status === 'Verified' || report.status === 'SubmittedForVerification') return;
     handleUpdateReport({
       ...report,
       collaborators: e.target.value,
     });
   };
 
-  const handleVerifyAndClose = () => {
-    if (!report || !isAdmin || report.status === 'Verified') return;
+  const validateSections2to5 = (report: NCARReport) => {
+    // Check if required fields in sections 2-5 have content
+    return (
+      report.section2.correction &&
+      report.section3.correctiveAction &&
+      report.section4.rootCauseAnalysis &&
+      report.section5.verificationDetails
+    );
+  }
 
-    // Basic check if sections 2-5 have some content before verification
-    if (!report.section2.correction || !report.section3.correctiveAction || !report.section4.rootCauseAnalysis || !report.section5.verificationDetails) {
-        toast.error("Please ensure Sections 2-5 are completed before verification.");
+  const handleSubmitForVerification = () => {
+    if (!report || !isUser || report.status !== 'Section1Locked') return;
+
+    if (!validateSections2to5(report)) {
+        toast.error("Please ensure all fields in Sections 2 through 5 are completed before submitting.");
         return;
     }
 
+    const submittedReport = {
+      ...report,
+      status: 'SubmittedForVerification' as ReportStatus,
+    };
+    handleUpdateReport(submittedReport);
+    toast.success(`Report ${report.name} submitted for Admin verification.`);
+  };
+
+  const handleVerifyAndClose = () => {
+    if (!report || !isAdmin || report.status !== 'SubmittedForVerification') return;
+
     const verifiedReport = {
       ...report,
-      status: 'Verified' as ReportStatus, // <-- Type assertion applied here
+      status: 'Verified' as ReportStatus,
       section5: {
         ...report.section5,
         dateVerified: new Date().toISOString().split('T')[0],
@@ -83,6 +103,7 @@ const NCARReportForm = () => {
   const isSection1Editable = isAdmin && report.status === 'Draft';
   const isSections2to5Editable = (isAdmin || isUser) && report.status === 'Section1Locked';
   const isReportVerified = report.status === 'Verified';
+  const isSubmitted = report.status === 'SubmittedForVerification';
   
   const getSectionStatusIcon = (sectionName: string) => {
     if (report.status === 'Draft' && sectionName !== 'Section 1') {
@@ -98,6 +119,11 @@ const NCARReportForm = () => {
         {isReportVerified && (
             <span className="px-3 py-1 text-sm font-semibold rounded-full bg-green-500 text-white flex items-center">
                 <CheckCircle className="h-4 w-4 mr-2" /> Verified & Closed
+            </span>
+        )}
+        {isSubmitted && (
+            <span className="px-3 py-1 text-sm font-semibold rounded-full bg-orange-500 text-white flex items-center">
+                Submitted for Verification
             </span>
         )}
       </div>
@@ -129,8 +155,8 @@ const NCARReportForm = () => {
                         placeholder="e.g., John Doe, Jane Smith"
                         value={report.collaborators}
                         onChange={handleCollaboratorsChange}
-                        readOnly={isReportVerified}
-                        className={isReportVerified ? 'bg-muted/50 mt-2' : 'mt-2'}
+                        readOnly={isReportVerified || isSubmitted}
+                        className={isReportVerified || isSubmitted ? 'bg-muted/50 mt-2' : 'mt-2'}
                     />
                 </div>
 
@@ -197,9 +223,21 @@ const NCARReportForm = () => {
         </CardContent>
       </Card>
 
-      {/* Admin Verification and Download Section */}
+      {/* Action Section */}
       <div className="flex justify-between items-center mt-8 p-4 border-t">
-        {isAdmin && report.status === 'Section1Locked' && (
+        
+        {/* User Submission Button */}
+        {isUser && report.status === 'Section1Locked' && (
+          <Button 
+            onClick={handleSubmitForVerification} 
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <CheckCircle className="mr-2 h-4 w-4" /> Submit for Verification
+          </Button>
+        )}
+
+        {/* Admin Verification Button */}
+        {isAdmin && report.status === 'SubmittedForVerification' && (
           <Button 
             onClick={handleVerifyAndClose} 
             className="bg-green-600 hover:bg-green-700"
@@ -208,6 +246,7 @@ const NCARReportForm = () => {
           </Button>
         )}
 
+        {/* Download Section (Visible if Verified) */}
         {isReportVerified && (
           <div className="space-x-4">
             <span className="text-lg font-semibold text-primary">Download Report:</span>

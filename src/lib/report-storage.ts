@@ -1,4 +1,4 @@
-export type ReportStatus = 'Draft' | 'Section1Locked' | 'Verified';
+export type ReportStatus = 'Draft' | 'Section1Locked' | 'SubmittedForVerification' | 'Verified';
 
 export type NCARReport = {
   id: string;
