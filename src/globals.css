@@ -114,12 +114,20 @@
   font-size: 1.2em !important;
 }
 
-/* Target input/textarea text */
+/* Target input/textarea text and reduce font size further */
 .pdf-export-mode input, 
 .pdf-export-mode textarea,
 .pdf-export-mode .text-sm,
 .pdf-export-mode .text-base {
-  font-size: 0.8rem !important;
+  font-size: 0.7rem !important;
+}
+
+/* Specific styling for inputs and textareas to reduce vertical space and ensure text visibility */
+.pdf-export-mode input,
+.pdf-export-mode textarea {
+    padding: 0.2rem 0.5rem !important; /* Reduced padding */
+    height: auto !important; /* Allow height to shrink */
+    min-height: 30px !important; /* Ensure minimum height for inputs */
 }
 
 /* Reduce padding/margin inside the report container */
@@ -142,5 +150,5 @@
 
 /* Ensure textareas don't take up too much vertical space */
 .pdf-export-mode .min-h-\[100px\] {
-    min-height: 60px !important; 
+    min-height: 50px !important; 
 }
