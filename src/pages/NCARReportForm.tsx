@@ -136,9 +136,9 @@ const NCARReportForm = () => {
   
   const handleDownloadPdf = async () => {
     // Check if report is Verified OR SubmittedForVerification
-    const isDownloadable = report?.status === 'Verified' || report?.status === 'SubmittedForVerification';
+    const isDownloadableCheck = report?.status === 'Verified' || report?.status === 'SubmittedForVerification';
 
-    if (!report || !isDownloadable) {
+    if (!report || !isDownloadableCheck) {
         toast.error("Report must be Submitted for Verification or Verified to download the PDF.");
         return;
     }
@@ -216,6 +216,9 @@ const NCARReportForm = () => {
   
   const isReportVerified = report.status === 'Verified';
   const isSubmitted = report.status === 'SubmittedForVerification';
+  
+  // FIX: Define isDownloadable here
+  const isDownloadable = isReportVerified || isSubmitted; 
   
   // Admin can edit all sections (1-6) unless the report is Verified.
   const isAdminFullyEditable = isAdmin && !isReportVerified;
