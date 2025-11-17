@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import PdfTextDisplay from '@/components/PdfTextDisplay';
+import { cn } from '@/lib/utils';
 
 // Section Imports
 import Section1Details from '@/components/report/Section1Details';
@@ -245,7 +246,10 @@ const NCARReportForm = () => {
                 onValueChange={setOpenAccordionItems}
               >
                   {/* Section 1: Non-Conformity Details (Admin Only Edit) */}
-                  <AccordionItem value="section-1">
+                  <AccordionItem 
+                    value="section-1"
+                    className={cn(isPdfExporting && 'page-break-after')}
+                  >
                       <AccordionTrigger>Section 1: Non-Conformity Details</AccordionTrigger>
                       <AccordionContent>
                           <Section1Details
@@ -259,7 +263,7 @@ const NCARReportForm = () => {
                   </AccordionItem>
 
                   {/* Collaborators Field */}
-                  <div className="p-4 border-b">
+                  <div className={cn("p-4 border-b", isPdfExporting && 'page-break-after')}>
                       <Label htmlFor="collaborators">Collaborators (Enter names separated by comma)</Label>
                       {isPdfExporting ? (
                           <PdfTextDisplay value={report.collaborators} />
@@ -276,7 +280,10 @@ const NCARReportForm = () => {
                   </div>
 
                   {/* Section 2: Correction */}
-                  <AccordionItem value="section-2">
+                  <AccordionItem 
+                    value="section-2"
+                    className={cn(isPdfExporting && 'page-break-after')}
+                  >
                       <AccordionTrigger disabled={report.status === 'Draft'}>
                           Section 2: Correction
                           {getSectionStatusIcon('Section 2')}
@@ -292,7 +299,10 @@ const NCARReportForm = () => {
                   </AccordionItem>
 
                   {/* Section 3: Corrective Action */}
-                  <AccordionItem value="section-3">
+                  <AccordionItem 
+                    value="section-3"
+                    className={cn(isPdfExporting && 'page-break-after')}
+                  >
                       <AccordionTrigger disabled={report.status === 'Draft'}>
                           Section 3: Corrective Action
                           {getSectionStatusIcon('Section 3')}
@@ -308,7 +318,10 @@ const NCARReportForm = () => {
                   </AccordionItem>
 
                   {/* Section 4: Root Cause Analysis */}
-                  <AccordionItem value="section-4">
+                  <AccordionItem 
+                    value="section-4"
+                    className={cn(isPdfExporting && 'page-break-after')}
+                  >
                       <AccordionTrigger disabled={report.status === 'Draft'}>
                           Section 4: Root Cause Analysis
                           {getSectionStatusIcon('Section 4')}
@@ -324,7 +337,10 @@ const NCARReportForm = () => {
                   </AccordionItem>
 
                   {/* Section 5: Verification */}
-                  <AccordionItem value="section-5">
+                  <AccordionItem 
+                    value="section-5"
+                    className={cn(isPdfExporting && 'page-break-after')}
+                  >
                       <AccordionTrigger disabled={report.status === 'Draft'}>
                           Section 5: Verification of Implementation and Effectiveness
                           {getSectionStatusIcon('Section 5')}
@@ -339,7 +355,7 @@ const NCARReportForm = () => {
                       </AccordionContent>
                   </AccordionItem>
                   
-                  {/* Section 6: Attachments (Admin Only) */}
+                  {/* Section 6: Attachments (Admin Only) - NO BREAK AFTER THIS */}
                   <AccordionItem value="section-6">
                       <AccordionTrigger>
                           Section 6: Attachments / Verification Notes

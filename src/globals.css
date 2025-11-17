@@ -109,6 +109,11 @@
   color: hsl(222.2 84% 4.9%) !important; /* Dark foreground */
 }
 
+/* Add page break utility for PDF export mode */
+.pdf-export-mode .page-break-after {
+  break-after: page !important;
+}
+
 .pdf-export-mode h1 {
   font-size: 1.5em !important;
 }
