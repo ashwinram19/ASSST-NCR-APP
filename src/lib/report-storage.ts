@@ -53,6 +53,11 @@ export type NCARReport = {
     reviewedBy: string; // New field
     approvedBy: string; // New field
   };
+
+  // Section 6: Attachments (Admin Only Edit)
+  section6: {
+    attachmentNotes: string;
+  };
 };
 
 const REPORT_STORAGE_KEY = 'nc_car_reports';
@@ -60,7 +65,13 @@ const REPORT_STORAGE_KEY = 'nc_car_reports';
 export const loadReports = (): NCARReport[] => {
   try {
     const data = localStorage.getItem(REPORT_STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    // Ensure loaded reports have section6 initialized for backward compatibility if needed, 
+    // though for new reports created after this change, it will be present.
+    const reports: NCARReport[] = data ? JSON.parse(data) : [];
+    return reports.map(report => ({
+      ...report,
+      section6: report.section6 || { attachmentNotes: '' },
+    }));
   } catch (e) {
     console.error('Error loading reports:', e);
     return [];

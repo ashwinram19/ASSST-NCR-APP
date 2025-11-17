@@ -16,6 +16,7 @@ import Section2Correction from '@/components/report/Section2Correction';
 import Section3CorrectiveAction from '@/components/report/Section3CorrectiveAction';
 import Section4RootCauseAnalysis from '@/components/report/Section4RootCauseAnalysis';
 import Section5Verification from '@/components/report/Section5Verification';
+import Section6Attachments from '@/components/report/Section6Attachments';
 
 const NCARReportForm = () => {
   const { reportId } = useParams<{ reportId: string }>();
@@ -102,6 +103,7 @@ const NCARReportForm = () => {
   // Permissions logic
   const isSection1Editable = isAdmin && report.status === 'Draft';
   const isSections2to5Editable = (isAdmin || isUser) && report.status === 'Section1Locked';
+  const isSection6Editable = isAdmin && (report.status === 'Draft' || report.status === 'SubmittedForVerification');
   const isReportVerified = report.status === 'Verified';
   const isSubmitted = report.status === 'SubmittedForVerification';
   
@@ -216,6 +218,21 @@ const NCARReportForm = () => {
                             report={report}
                             onUpdate={handleUpdateReport}
                             isEditable={isSections2to5Editable}
+                        />
+                    </AccordionContent>
+                </AccordionItem>
+                
+                {/* Section 6: Attachments (Admin Only) */}
+                <AccordionItem value="section-6">
+                    <AccordionTrigger>
+                        Section 6: Attachments / Verification Notes
+                        {isReportVerified ? null : <Lock className="ml-2 h-4 w-4 text-muted-foreground" />}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <Section6Attachments
+                            report={report}
+                            onUpdate={handleUpdateReport}
+                            isEditable={isSection6Editable}
                         />
                     </AccordionContent>
                 </AccordionItem>

@@ -153,6 +153,7 @@ const AdminDashboard = () => {
       section3: { correctiveAction: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
       section4: { rootCauseAnalysis: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
       section5: { verificationDetails: '', dateVerified: '', reviewedBy: '', approvedBy: '' },
+      section6: { attachmentNotes: '' }, // Initialize new section
     };
 
     saveReport(newReport);
