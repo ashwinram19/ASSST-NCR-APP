@@ -263,7 +263,7 @@ const NCARReportForm = () => {
                   </AccordionItem>
 
                   {/* Collaborators Field */}
-                  <div className={cn("p-4 border-b", isPdfExporting && 'page-break-after')}>
+                  <div className={cn("p-4 border-b")}>
                       <Label htmlFor="collaborators">Collaborators (Enter names separated by comma)</Label>
                       {isPdfExporting ? (
                           <PdfTextDisplay value={report.collaborators} />

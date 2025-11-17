@@ -114,6 +114,7 @@
   break-after: page !important;
   /* Attempt to prevent content inside this element from splitting across pages */
   break-inside: avoid !important; 
+  page-break-inside: avoid !important;
 }
 
 .pdf-export-mode h1 {
