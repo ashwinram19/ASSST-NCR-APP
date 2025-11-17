@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, Download, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 // Section Imports
 import Section1Details from '@/components/report/Section1Details';
@@ -20,7 +22,6 @@ import Section6Attachments from '@/components/report/Section6Attachments';
 
 // PDF Utility Imports
 import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
-import { generateNCARReportPdf } from '@/utils/pdf-generator';
 
 const NCARReportForm = () => {
   const { reportId } = useParams<{ reportId: string }>();
@@ -29,7 +30,10 @@ const NCARReportForm = () => {
   const [report, setReport] = React.useState<NCARReport | null>(null);
   const [loading, setLoading] = React.useState(true);
   
-  // State for setup data needed for PDF generation
+  // Ref for the report content container to capture
+  const reportRef = React.useRef<HTMLDivElement>(null);
+
+  // State for setup data (kept for Section1Details display)
   const [setupData, setSetupData] = React.useState<{
     departments: SetupItem[];
     clauseIDs: SetupItem[];
@@ -110,11 +114,51 @@ const NCARReportForm = () => {
     toast.success(`Report ${report.name} verified and closed. Sections 2-5 are now locked.`);
   };
   
-  const handleDownloadPdf = () => {
-    if (report && report.status === 'Verified') {
-        generateNCARReportPdf(report, setupData);
-    } else {
+  const handleDownloadPdf = async () => {
+    if (!report || report.status !== 'Verified') {
         toast.error("Report must be Verified to download the PDF.");
+        return;
+    }
+
+    if (reportRef.current) {
+        toast.loading("Generating PDF...", { id: 'pdf-loading' });
+        
+        try {
+            // Capture the DOM element as a canvas/image
+            const canvas = await html2canvas(reportRef.current, {
+                scale: 2, // Increase scale for better resolution
+                useCORS: true,
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 297; // A4 height in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            // Add first page
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            // Handle multi-page content
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            pdf.save(`${report.name}_Report.pdf`);
+            toast.dismiss('pdf-loading');
+            toast.success("PDF downloaded successfully.");
+
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+            toast.dismiss('pdf-loading');
+            toast.error("Failed to generate PDF. This method relies on browser rendering and may fail on complex layouts.");
+        }
     }
   };
 
@@ -142,6 +186,7 @@ const NCARReportForm = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+      
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">{report.name}</h1>
         {isReportVerified && (
@@ -156,117 +201,122 @@ const NCARReportForm = () => {
         )}
       </div>
 
-      <Card className="mb-6">
-        <CardHeader>
-            <CardTitle>Report Status: {report.status}</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <Accordion type="multiple" defaultValue={['section-1']}>
-                {/* Section 1: Non-Conformity Details (Admin Only Edit) */}
-                <AccordionItem value="section-1">
-                    <AccordionTrigger>Section 1: Non-Conformity Details</AccordionTrigger>
-                    <AccordionContent>
-                        <Section1Details
-                            report={report}
-                            onUpdate={handleUpdateReport}
-                            isEditable={isSection1Editable}
-                            isAdmin={isAdmin}
-                        />
-                    </AccordionContent>
-                </AccordionItem>
+      {/* Report Content Container for PDF Capture */}
+      <div ref={reportRef} className="space-y-6">
+        <Card className="mb-6">
+          <CardHeader>
+              <CardTitle>Report Status: {report.status}</CardTitle>
+          </CardHeader>
+          <CardContent>
+              <Accordion type="multiple" defaultValue={['section-1']}>
+                  {/* Section 1: Non-Conformity Details (Admin Only Edit) */}
+                  <AccordionItem value="section-1">
+                      <AccordionTrigger>Section 1: Non-Conformity Details</AccordionTrigger>
+                      <AccordionContent>
+                          <Section1Details
+                              report={report}
+                              onUpdate={handleUpdateReport}
+                              isEditable={isSection1Editable}
+                              isAdmin={isAdmin}
+                          />
+                      </AccordionContent>
+                  </AccordionItem>
 
-                {/* Collaborators Field */}
-                <div className="p-4 border-b">
-                    <Label htmlFor="collaborators">Collaborators (Enter names separated by comma)</Label>
-                    <Input
-                        id="collaborators"
-                        placeholder="e.g., John Doe, Jane Smith"
-                        value={report.collaborators}
-                        onChange={handleCollaboratorsChange}
-                        readOnly={isReportVerified || isSubmitted}
-                        className={isReportVerified || isSubmitted ? 'bg-muted/50 mt-2' : 'mt-2'}
-                    />
-                </div>
+                  {/* Collaborators Field */}
+                  <div className="p-4 border-b">
+                      <Label htmlFor="collaborators">Collaborators (Enter names separated by comma)</Label>
+                      <Input
+                          id="collaborators"
+                          placeholder="e.g., John Doe, Jane Smith"
+                          value={report.collaborators}
+                          onChange={handleCollaboratorsChange}
+                          readOnly={isReportVerified || isSubmitted}
+                          className={isReportVerified || isSubmitted ? 'bg-muted/50 mt-2' : 'mt-2'}
+                      />
+                  </div>
 
-                {/* Section 2: Correction */}
-                <AccordionItem value="section-2">
-                    <AccordionTrigger disabled={report.status === 'Draft'}>
-                        Section 2: Correction
-                        {getSectionStatusIcon('Section 2')}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <Section2Correction
-                            report={report}
-                            onUpdate={handleUpdateReport}
-                            isEditable={isSections2to5Editable}
-                        />
-                    </AccordionContent>
-                </AccordionItem>
+                  {/* Section 2: Correction */}
+                  <AccordionItem value="section-2">
+                      <AccordionTrigger disabled={report.status === 'Draft'}>
+                          Section 2: Correction
+                          {getSectionStatusIcon('Section 2')}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                          <Section2Correction
+                              report={report}
+                              onUpdate={handleUpdateReport}
+                              isEditable={isSections2to5Editable}
+                          />
+                      </AccordionContent>
+                  </AccordionItem>
 
-                {/* Section 3: Corrective Action */}
-                <AccordionItem value="section-3">
-                    <AccordionTrigger disabled={report.status === 'Draft'}>
-                        Section 3: Corrective Action
-                        {getSectionStatusIcon('Section 3')}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <Section3CorrectiveAction
-                            report={report}
-                            onUpdate={handleUpdateReport}
-                            isEditable={isSections2to5Editable}
-                        />
-                    </AccordionContent>
-                </AccordionItem>
+                  {/* Section 3: Corrective Action */}
+                  <AccordionItem value="section-3">
+                      <AccordionTrigger disabled={report.status === 'Draft'}>
+                          Section 3: Corrective Action
+                          {getSectionStatusIcon('Section 3')}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                          <Section3CorrectiveAction
+                              report={report}
+                              onUpdate={handleUpdateReport}
+                              isEditable={isSections2to5Editable}
+                          />
+                      </AccordionContent>
+                  </AccordionItem>
 
-                {/* Section 4: Root Cause Analysis */}
-                <AccordionItem value="section-4">
-                    <AccordionTrigger disabled={report.status === 'Draft'}>
-                        Section 4: Root Cause Analysis
-                        {getSectionStatusIcon('Section 4')}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <Section4RootCauseAnalysis
-                            report={report}
-                            onUpdate={handleUpdateReport}
-                            isEditable={isSections2to5Editable}
-                        />
-                    </AccordionContent>
-                </AccordionItem>
+                  {/* Section 4: Root Cause Analysis */}
+                  <AccordionItem value="section-4">
+                      <AccordionTrigger disabled={report.status === 'Draft'}>
+                          Section 4: Root Cause Analysis
+                          {getSectionStatusIcon('Section 4')}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                          <Section4RootCauseAnalysis
+                              report={report}
+                              onUpdate={handleUpdateReport}
+                              isEditable={isSections2to5Editable}
+                          />
+                      </AccordionContent>
+                  </AccordionItem>
 
-                {/* Section 5: Verification */}
-                <AccordionItem value="section-5">
-                    <AccordionTrigger disabled={report.status === 'Draft'}>
-                        Section 5: Verification of Implementation and Effectiveness
-                        {getSectionStatusIcon('Section 5')}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <Section5Verification
-                            report={report}
-                            onUpdate={handleUpdateReport}
-                            isEditable={isSections2to5Editable}
-                        />
-                    </AccordionContent>
-                </AccordionItem>
-                
-                {/* Section 6: Attachments (Admin Only) */}
-                <AccordionItem value="section-6">
-                    <AccordionTrigger>
-                        Section 6: Attachments / Verification Notes
-                        {isReportVerified ? null : <Lock className="ml-2 h-4 w-4 text-muted-foreground" />}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <Section6Attachments
-                            report={report}
-                            onUpdate={handleUpdateReport}
-                            isEditable={isSection6Editable}
-                        />
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
-        </CardContent>
-      </Card>
+                  {/* Section 5: Verification */}
+                  <AccordionItem value="section-5">
+                      <AccordionTrigger disabled={report.status === 'Draft'}>
+                          Section 5: Verification of Implementation and Effectiveness
+                          {getSectionStatusIcon('Section 5')}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                          <Section5Verification
+                              report={report}
+                              onUpdate={handleUpdateReport}
+                              isEditable={isSections2to5Editable}
+                          />
+                      </AccordionContent>
+                  </AccordionItem>
+                  
+                  {/* Section 6: Attachments (Admin Only) */}
+                  <AccordionItem value="section-6">
+                      <AccordionTrigger>
+                          Section 6: Attachments / Verification Notes
+                          {isReportVerified ? null : <Lock className="ml-2 h-4 w-4 text-muted-foreground" />}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                          <Section6Attachments
+                              report={report}
+                              onUpdate={handleUpdateReport}
+                              isEditable={isSection6Editable}
+                          />
+                      </AccordionContent>
+                  </AccordionItem>
+              </Accordion>
+          </CardContent>
+        </Card>
+      </div>
+      {/* End Report Content Container */}
 
-      {/* Action Section */}
+
+      {/* Action Section (Excluded from PDF capture) */}
       <div className="flex justify-between items-center mt-8 p-4 border-t">
         
         {/* User Submission Button */}
