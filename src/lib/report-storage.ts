@@ -1,5 +1,12 @@
 export type ReportStatus = 'Draft' | 'Section1Locked' | 'SubmittedForVerification' | 'Verified';
 
+export type Attachment = {
+  id: string;
+  name: string;
+  type: 'text' | 'image';
+  content: string; // URL, Base64 string, or text description
+};
+
 export type NCARReport = {
   id: string;
   name: string;
@@ -56,22 +63,50 @@ export type NCARReport = {
 
   // Section 6: Attachments (Admin Only Edit)
   section6: {
-    attachmentNotes: string;
+    attachments: Attachment[];
   };
 };
 
 const REPORT_STORAGE_KEY = 'nc_car_reports';
 
+// Helper function to check if a string is a valid image URL or Base64 data URL
+const isImageContent = (content: string): boolean => {
+  return content.startsWith('http') || content.startsWith('data:image');
+};
+
 export const loadReports = (): NCARReport[] => {
   try {
     const data = localStorage.getItem(REPORT_STORAGE_KEY);
-    // Ensure loaded reports have section6 initialized for backward compatibility if needed, 
-    // though for new reports created after this change, it will be present.
     const reports: NCARReport[] = data ? JSON.parse(data) : [];
-    return reports.map(report => ({
-      ...report,
-      section6: report.section6 || { attachmentNotes: '' },
-    }));
+    
+    // Handle migration from old string notes to new Attachment array structure
+    return reports.map(report => {
+      let section6 = report.section6;
+      
+      // Check if section6 is in the old format (attachmentNotes: string)
+      if (section6 && 'attachmentNotes' in section6) {
+        const oldNotes = (section6 as any).attachmentNotes as string;
+        const attachments: Attachment[] = oldNotes.split('\n')
+          .map(s => s.trim())
+          .filter(s => s.length > 0)
+          .map(name => ({
+            id: Date.now().toString() + Math.random(),
+            name: name,
+            type: 'text',
+            content: name,
+          }));
+        
+        section6 = { attachments };
+      } else if (!section6 || !section6.attachments) {
+        // Initialize if missing entirely
+        section6 = { attachments: [] };
+      }
+
+      return {
+        ...report,
+        section6: section6 as NCARReport['section6'],
+      };
+    });
   } catch (e) {
     console.error('Error loading reports:', e);
     return [];
