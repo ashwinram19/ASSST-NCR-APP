@@ -61,7 +61,7 @@ const Section3CorrectiveAction: React.FC<SectionProps> = ({ report, onUpdate, is
       {renderField('dateCompleted', 'Date Completed', 'date')}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-        {renderField('reviewedBy', 'Reviewed By', 'text')}
+        {renderField('reviewedBy', 'Action Completed By', 'text')}
         {/* Removed Approved By */}
       </div>
     </div>
