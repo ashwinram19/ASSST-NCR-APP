@@ -156,7 +156,7 @@ const AdminDashboard = () => {
       section2: { correction: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
       section3: { correctiveAction: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
       section4: { rootCauseAnalysis: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
-      section5: { verificationDetails: '', dateVerified: '', reviewedBy: '', approvedBy: '' },
+      section5: { verificationItems: [], dateVerified: '', approvedBy: '' }, // Updated initialization
       section6: { attachmentNotes: '' }, // Initialize new section
     };
 

@@ -1,5 +1,11 @@
 export type ReportStatus = 'Draft' | 'Section1Locked' | 'SubmittedForVerification' | 'Verified';
 
+export type VerificationItem = {
+  id: string;
+  result: string; // Verification Result (e.g., Pass, Fail, N/A)
+  details: string; // Verification Details/Remarks
+};
+
 export type NCARReport = {
   id: string;
   name: string;
@@ -49,10 +55,9 @@ export type NCARReport = {
     approvedBy: string; // New field
   };
   section5: {
-    verificationDetails: string;
+    verificationItems: VerificationItem[]; // Dynamic rows
     dateVerified: string;
-    reviewedBy: string; // New field
-    approvedBy: string; // New field
+    approvedBy: string; // Removed reviewedBy
   };
 
   // Section 6: Attachments (Admin Only Edit)
@@ -66,20 +71,48 @@ const REPORT_STORAGE_KEY = 'nc_car_reports';
 export const loadReports = (): NCARReport[] => {
   try {
     const data = localStorage.getItem(REPORT_STORAGE_KEY);
-    // Ensure loaded reports have section6 initialized for backward compatibility if needed, 
-    // though for new reports created after this change, it will be present.
     const reports: any[] = data ? JSON.parse(data) : [];
     return reports.map(report => {
       // Safely destructure and omit qmsClauseReference if it exists in old data
       const { qmsClauseReference, ...restSection1 } = report.section1 || {};
       
+      // Migration for section5 structure
+      let section5Data: NCARReport['section5'];
+      
+      // Check if verificationItems exists (new structure)
+      if (report.section5 && Array.isArray(report.section5.verificationItems)) {
+          section5Data = {
+              verificationItems: report.section5.verificationItems,
+              dateVerified: report.section5.dateVerified || '',
+              approvedBy: report.section5.approvedBy || '',
+          };
+      } else {
+          // Old structure migration (or initialization)
+          const oldDetails = report.section5?.verificationDetails || '';
+          
+          section5Data = {
+              verificationItems: oldDetails ? [{
+                  id: Date.now().toString(), // Assign a unique ID for migration
+                  result: 'N/A', 
+                  details: oldDetails,
+              }] : [],
+              dateVerified: report.section5?.dateVerified || '',
+              approvedBy: report.section5?.approvedBy || '',
+          };
+      }
+      
+      // Ensure sections are initialized correctly
       return {
         ...report,
         section6: report.section6 || { attachmentNotes: '' },
         section1: {
           ...restSection1,
-          nonConformityTypeId: restSection1.nonConformityTypeId || '', // Initialize new field
-        }
+          nonConformityTypeId: restSection1.nonConformityTypeId || '',
+        },
+        section2: report.section2 || { correction: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
+        section3: report.section3 || { correctiveAction: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
+        section4: report.section4 || { rootCauseAnalysis: '', dateCompleted: '', reviewedBy: '', approvedBy: '' },
+        section5: section5Data,
       } as NCARReport;
     });
   } catch (e) {
