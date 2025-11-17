@@ -45,7 +45,7 @@ const NCARReportForm = () => {
     departments: SetupItem[];
     clauseIDs: SetupItem[];
     iqrNumbers: SetupItem[];
-  }>({ departments: [], clauseIDs: [], iqrNumbers: [] });
+  }>({ departments: [], clauseIDs: [], iqrNumbers: [], });
 
   React.useEffect(() => {
     // Load setup data
@@ -77,8 +77,15 @@ const NCARReportForm = () => {
   };
 
   const handleCollaboratorsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Collaborators field is editable until verification/submission
-    if (!report || report.status === 'Verified' || report.status === 'SubmittedForVerification') return;
+    if (!report) return;
+    
+    // Admin can edit unless Verified. User can edit only in Draft or Section1Locked status.
+    const isFieldEditable = isAdmin 
+      ? report.status !== 'Verified' 
+      : (report.status === 'Draft' || report.status === 'Section1Locked');
+    
+    if (!isFieldEditable) return;
+    
     handleUpdateReport({
       ...report,
       collaborators: e.target.value,
@@ -207,23 +214,27 @@ const NCARReportForm = () => {
 
   // Permissions logic based on new requirements:
   
-  // 1. Section 1 (Data: section1): Admin only, editable only in Draft.
-  const isSection1Editable = isAdmin && report.status === 'Draft'; 
-
-  // 2. Sections 2, 3, 4 (Data: section2, section3, section4): User/Admin, editable when Section1Locked.
-  const isSections234Editable = (isAdmin || isUser) && report.status === 'Section1Locked';
-
-  // 3. Section 5: Attachments (Data: section6): User/Admin, editable when Section1Locked, or Admin when Submitted.
-  const isSection5AttachmentsEditable = (report.status === 'Section1Locked') || (isAdmin && report.status === 'SubmittedForVerification');
-
-  // 4. Section 6: Verification (Data: section5): Admin only, editable when SubmittedForVerification.
-  const isSection6VerificationEditable = isAdmin && report.status === 'SubmittedForVerification';
-  
   const isReportVerified = report.status === 'Verified';
   const isSubmitted = report.status === 'SubmittedForVerification';
   
-  // New variable to determine if download buttons should be visible
-  const isDownloadable = isReportVerified || isSubmitted; 
+  // Admin can edit all sections (1-6) unless the report is Verified.
+  const isAdminFullyEditable = isAdmin && !isReportVerified;
+
+  // 1. Section 1 (Data: section1): Admin only, editable until Verified.
+  const isSection1Editable = isAdminFullyEditable; 
+
+  // 2. Sections 2, 3, 4 (Data: section2, section3, section4): 
+  //    Admin editable until Verified. User editable when Section1Locked.
+  const isSections234Editable = isAdminFullyEditable || (isUser && report.status === 'Section1Locked');
+
+  // 3. Section 5: Attachments (Data: section6): 
+  //    Admin editable until Verified. User editable when Section1Locked.
+  const isSection5AttachmentsEditable = isAdminFullyEditable || (isUser && report.status === 'Section1Locked');
+
+  // 4. Section 6: Verification (Data: section5): 
+  //    Admin only, editable when SubmittedForVerification (or if Admin is fully editable).
+  const isSection6VerificationEditable = isAdminFullyEditable && report.status === 'SubmittedForVerification';
+  
   
   const getLockIcon = (isEditable: boolean) => {
     if (isEditable || isReportVerified) return null;
@@ -289,8 +300,8 @@ const NCARReportForm = () => {
                               placeholder="e.g., John Doe, Jane Smith"
                               value={report.collaborators}
                               onChange={handleCollaboratorsChange}
-                              readOnly={isReportVerified || isSubmitted}
-                              className={isReportVerified || isSubmitted ? 'bg-muted/50 mt-2' : 'mt-2'}
+                              readOnly={!isAdminFullyEditable && (isReportVerified || isSubmitted)} // Only read-only if not Admin and status is Submitted/Verified
+                              className={(!isAdminFullyEditable && (isReportVerified || isSubmitted)) ? 'bg-muted/50 mt-2' : 'mt-2'}
                           />
                       )}
                   </div>
@@ -300,7 +311,7 @@ const NCARReportForm = () => {
                     value="section-2"
                     className={cn(isPdfExporting && 'page-break-after')}
                   >
-                      <AccordionTrigger disabled={report.status === 'Draft'}>
+                      <AccordionTrigger disabled={report.status === 'Draft' && !isAdminFullyEditable}>
                           Section 2: Correction
                           {getLockIcon(isSections234Editable)}
                       </AccordionTrigger>
@@ -321,7 +332,7 @@ const NCARReportForm = () => {
                     value="section-3"
                     className={cn(isPdfExporting && 'page-break-after')}
                   >
-                      <AccordionTrigger disabled={report.status === 'Draft'}>
+                      <AccordionTrigger disabled={report.status === 'Draft' && !isAdminFullyEditable}>
                           Section 3: Corrective Action
                           {getLockIcon(isSections234Editable)}
                       </AccordionTrigger>
@@ -342,7 +353,7 @@ const NCARReportForm = () => {
                     value="section-4"
                     className={cn(isPdfExporting && 'page-break-after')}
                   >
-                      <AccordionTrigger disabled={report.status === 'Draft'}>
+                      <AccordionTrigger disabled={report.status === 'Draft' && !isAdminFullyEditable}>
                           Section 4: Root Cause Analysis
                           {getLockIcon(isSections234Editable)}
                       </AccordionTrigger>
@@ -360,7 +371,7 @@ const NCARReportForm = () => {
                   
                   {/* NEW Section 5: Attachments / Verification Notes (Uses section-6 data) */}
                   <AccordionItem value="section-6">
-                      <AccordionTrigger disabled={report.status === 'Draft'}>
+                      <AccordionTrigger disabled={report.status === 'Draft' && !isAdminFullyEditable}>
                           Section 5: Attachments / Verification Notes
                           {getLockIcon(isSection5AttachmentsEditable)}
                       </AccordionTrigger>
@@ -381,7 +392,7 @@ const NCARReportForm = () => {
                     value="section-5"
                     className={cn(isPdfExporting && 'page-break-after')}
                   >
-                      <AccordionTrigger disabled={report.status !== 'SubmittedForVerification' && !isReportVerified}>
+                      <AccordionTrigger disabled={report.status !== 'SubmittedForVerification' && !isReportVerified && !isAdminFullyEditable}>
                           Section 6: Verification of Implementation and Effectiveness
                           {getLockIcon(isSection6VerificationEditable)}
                       </AccordionTrigger>

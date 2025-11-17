@@ -207,16 +207,13 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         <div className="pt-4 border-t flex items-center space-x-4">
           <Button
             onClick={handleLockSection}
-            disabled={report.section1.adminAcknowledged}
-            variant={report.section1.adminAcknowledged ? 'secondary' : 'default'}
+            variant={'default'}
           >
-            {report.section1.adminAcknowledged ? <Check className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
-            Acknowledgment & Lock Section 1
+            <Lock className="mr-2 h-4 w-4" />
+            Lock Section 1 (Enable User Input)
           </Button>
           <p className="text-sm text-muted-foreground">
-            {report.section1.adminAcknowledged
-              ? 'Section 1 is locked.'
-              : 'Click to finalize Section 1 and enable Sections 2-5 for user input.'}
+            Click to finalize Section 1 details and enable Sections 2-5 for user input. (Admin retains edit access until Verified.)
           </p>
         </div>
       )}
