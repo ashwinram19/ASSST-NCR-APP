@@ -23,12 +23,16 @@ import Section6Attachments from '@/components/report/Section6Attachments';
 // PDF Utility Imports
 import { getDepartments, getClauseIDs, getIQRNumbers, SetupItem } from '@/lib/data-storage';
 
+// Define all section keys for easy management
+const ALL_SECTIONS = ['section-1', 'section-2', 'section-3', 'section-4', 'section-5', 'section-6'];
+
 const NCARReportForm = () => {
   const { reportId } = useParams<{ reportId: string }>();
   const navigate = useNavigate();
   const { isAdmin, isUser } = useAuth();
   const [report, setReport] = React.useState<NCARReport | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [openAccordionItems, setOpenAccordionItems] = React.useState<string[]>(['section-1']); // State to control accordion
   
   // Ref for the report content container to capture
   const reportRef = React.useRef<HTMLDivElement>(null);
@@ -52,6 +56,10 @@ const NCARReportForm = () => {
       const loadedReport = getReportById(reportId);
       if (loadedReport) {
         setReport(loadedReport);
+        // If verified, open all sections by default for final viewing/printing
+        if (loadedReport.status === 'Verified') {
+            setOpenAccordionItems(ALL_SECTIONS);
+        }
       } else {
         toast.error("Report not found.");
         navigate(isAdmin ? '/admin/dashboard' : '/user/dashboard');
@@ -111,6 +119,8 @@ const NCARReportForm = () => {
       }
     };
     handleUpdateReport(verifiedReport);
+    // When verified, ensure all sections are open for final view
+    setOpenAccordionItems(ALL_SECTIONS);
     toast.success(`Report ${report.name} verified and closed. Sections 2-5 are now locked.`);
   };
   
@@ -122,6 +132,16 @@ const NCARReportForm = () => {
 
     if (reportRef.current) {
         toast.loading("Generating PDF...", { id: 'pdf-loading' });
+        
+        // Store current open state
+        const previousOpenState = openAccordionItems;
+        
+        // 1. Temporarily open all sections to ensure all content is rendered
+        setOpenAccordionItems(ALL_SECTIONS);
+
+        // Wait for the DOM to update and render the expanded content
+        // A small delay is necessary for the accordion animation/layout calculation to complete
+        await new Promise(resolve => setTimeout(resolve, 300)); 
         
         try {
             // Capture the DOM element as a canvas/image
@@ -158,6 +178,9 @@ const NCARReportForm = () => {
             console.error("Error generating PDF:", error);
             toast.dismiss('pdf-loading');
             toast.error("Failed to generate PDF. This method relies on browser rendering and may fail on complex layouts.");
+        } finally {
+            // 3. Restore previous state (though for Verified reports, this is likely ALL_SECTIONS anyway)
+            setOpenAccordionItems(previousOpenState);
         }
     }
   };
@@ -208,7 +231,11 @@ const NCARReportForm = () => {
               <CardTitle>Report Status: {report.status}</CardTitle>
           </CardHeader>
           <CardContent>
-              <Accordion type="multiple" defaultValue={['section-1']}>
+              <Accordion 
+                type="multiple" 
+                value={openAccordionItems} 
+                onValueChange={setOpenAccordionItems}
+              >
                   {/* Section 1: Non-Conformity Details (Admin Only Edit) */}
                   <AccordionItem value="section-1">
                       <AccordionTrigger>Section 1: Non-Conformity Details</AccordionTrigger>
