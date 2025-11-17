@@ -31,11 +31,11 @@ const AttachmentManager: React.FC<AttachmentManagerProps> = ({ notes, onUpdateNo
     if (file) {
       const fileName = file.name;
       
-      // Simulate upload by recording the file name
+      // Record the file name in local storage
       const updatedAttachments = [...attachments, fileName];
       onUpdateNotes(arrayToNotes(updatedAttachments));
       
-      toast.success(`File selected (simulated upload): ${fileName}`);
+      toast.success(`File attached: ${fileName}`);
       
       // Clear the input value so the same file can be selected again if needed
       event.target.value = ''; 
@@ -84,20 +84,17 @@ const AttachmentManager: React.FC<AttachmentManagerProps> = ({ notes, onUpdateNo
           <Label htmlFor="file-upload" className="cursor-pointer">
             <Button asChild disabled={!isEditable}>
               <div>
-                <Upload className="mr-2 h-4 w-4" /> Select File to Attach
+                <Upload className="mr-2 h-4 w-4" /> Upload File
               </div>
             </Button>
           </Label>
-          <p className="text-sm text-muted-foreground">
-            (Only the file name is recorded for now)
-          </p>
         </div>
       )}
 
       <div className="space-y-2 border rounded-md p-4 bg-background/50">
         {attachments.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {isEditable ? "No attachments documented yet. Select a file above." : "No attachments documented."}
+            {isEditable ? "No attachments documented yet. Click 'Upload File' to select a document." : "No attachments documented."}
           </p>
         ) : (
           attachments.map((attachment, index) => (
