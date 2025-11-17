@@ -272,6 +272,14 @@ const NCARReportForm = () => {
 
       {/* Report Content Container for PDF Capture */}
       <div ref={reportRef} className="space-y-6">
+        
+        {/* Report Title for PDF Export */}
+        {isPdfExporting && (
+            <h1 className="text-2xl font-bold text-center mb-4 p-2 border-b border-gray-400">
+                NC/CAR Report: {report.name}
+            </h1>
+        )}
+
         <Card className="mb-6">
           <CardHeader>
               <CardTitle>Report Status: {report.status}</CardTitle>
