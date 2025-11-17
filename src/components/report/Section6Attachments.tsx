@@ -1,5 +1,5 @@
 import React from 'react';
-import { NCARReport, Attachment } from '@/lib/report-storage';
+import { NCARReport } from '@/lib/report-storage';
 import AttachmentManager from './AttachmentManager';
 
 interface SectionProps {
@@ -9,21 +9,21 @@ interface SectionProps {
 }
 
 const Section6Attachments: React.FC<SectionProps> = ({ report, onUpdate, isEditable }) => {
-  const handleUpdateAttachments = (newAttachments: Attachment[]) => {
+  const handleUpdateNotes = (newNotes: string) => {
     if (!isEditable) return;
     onUpdate({
       ...report,
       section6: {
         ...report.section6,
-        attachments: newAttachments,
+        attachmentNotes: newNotes,
       },
     });
   };
 
   return (
     <AttachmentManager
-      attachments={report.section6.attachments}
-      onUpdateAttachments={handleUpdateAttachments}
+      notes={report.section6.attachmentNotes}
+      onUpdateNotes={handleUpdateNotes}
       isEditable={isEditable}
     />
   );
