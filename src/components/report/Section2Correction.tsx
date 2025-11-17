@@ -62,7 +62,7 @@ const Section2Correction: React.FC<SectionProps> = ({ report, onUpdate, isEditab
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
         {renderField('reviewedBy', 'Reviewed By', 'text')}
-        {renderField('approvedBy', 'Approved By', 'text')}
+        {/* Removed Approved By */}
       </div>
     </div>
   );
