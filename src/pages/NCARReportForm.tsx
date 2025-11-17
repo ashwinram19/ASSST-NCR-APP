@@ -126,6 +126,7 @@ const NCARReportForm = () => {
       section5: {
         ...report.section5,
         dateVerified: new Date().toISOString().split('T')[0],
+        approvedBy: 'Approved By QMS Admin', // Automatically set Approved By
       }
     };
     handleUpdateReport(verifiedReport);

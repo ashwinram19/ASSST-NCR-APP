@@ -21,16 +21,7 @@ const VERIFICATION_RESULTS = ['Pass', 'Fail', 'N/A'];
 const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
   const { verificationItems, dateVerified, approvedBy } = report.section5;
 
-  const handleFixedInputChange = (field: 'dateVerified' | 'approvedBy', value: string) => {
-    if (!isEditable) return;
-    onUpdate({
-      ...report,
-      section5: {
-        ...report.section5,
-        [field]: value,
-      },
-    });
-  };
+  // Removed handleFixedInputChange as these fields are now set automatically
 
   const handleItemChange = (id: string, field: keyof VerificationItem, value: string) => {
     if (!isEditable) return;
@@ -76,29 +67,14 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
     toast.success("Verification step removed.");
   };
 
-  const renderFixedField = (field: 'dateVerified' | 'approvedBy', label: string, type: 'text' | 'date') => {
-    const currentValue = report.section5[field];
-
-    if (isPdfExporting) {
-        return (
-            <div className="space-y-2">
-                <Label>{label}</Label>
-                <PdfTextDisplay value={currentValue} />
-            </div>
-        );
-    }
+  // Updated to render read-only display only
+  const renderFixedField = (field: 'dateVerified' | 'approvedBy', label: string) => {
+    const currentValue = report.section5[field] || 'Pending Verification';
 
     return (
         <div className="space-y-2">
-            <Label htmlFor={field}>{label}</Label>
-            <Input
-                id={field}
-                type={type}
-                value={currentValue}
-                onChange={(e) => handleFixedInputChange(field, e.target.value)}
-                readOnly={!isEditable}
-                className={!isEditable ? 'bg-muted/50' : ''}
-            />
+            <Label>{label}</Label>
+            <PdfTextDisplay value={currentValue} />
         </div>
     );
   };
@@ -184,8 +160,8 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
             </div>
             
             <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                {renderFixedField('dateVerified', 'Date Verified', 'date')}
-                {renderFixedField('approvedBy', 'Approved By', 'text')}
+                {renderFixedField('dateVerified', 'Date Verified')}
+                {renderFixedField('approvedBy', 'Approved By')}
             </div>
         </div>
     );
@@ -210,8 +186,8 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-        {renderFixedField('dateVerified', 'Date Verified', 'date')}
-        {renderFixedField('approvedBy', 'Approved By', 'text')}
+        {renderFixedField('dateVerified', 'Date Verified')}
+        {renderFixedField('approvedBy', 'Approved By')}
       </div>
     </div>
   );
