@@ -15,10 +15,9 @@ interface Section1DetailsProps {
   onUpdate: (report: NCARReport) => void;
   isEditable: boolean;
   isAdmin: boolean;
-  isPdfExporting: boolean;
 }
 
-const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isEditable, isAdmin, isPdfExporting }) => {
+const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isEditable, isAdmin }) => {
   const departments = getDepartments();
   const clauseIDs = getClauseIDs();
   const iqrNumbers = getIQRNumbers();
@@ -70,15 +69,6 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
     const currentValue = report.section1[field] as string;
     const displayValue = findNameById(currentValue, dataList);
 
-    if (isPdfExporting) {
-        return (
-            <div className="space-y-2">
-                <Label>{label}</Label>
-                <PdfTextDisplay value={displayValue} />
-            </div>
-        );
-    }
-
     if (isEditable) {
       return (
         <div className="space-y-2">
@@ -115,15 +105,6 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
   const renderStandardInput = (field: keyof NCARReport['section1'], label: string, type: 'text' | 'date' | 'textarea', placeholder?: string) => {
     const currentValue = report.section1[field] as string;
     
-    if (isPdfExporting) {
-        return (
-            <div className="space-y-2">
-                <Label>{label}</Label>
-                <PdfTextDisplay value={currentValue} />
-            </div>
-        );
-    }
-
     const InputComponent = type === 'textarea' ? Textarea : Input;
     const inputProps = {
         id: field,
@@ -183,7 +164,7 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         )}
       </div>
 
-      <h3 className="text-lg font-semibold pt-4 border-t">Non-Conformity Details ({isPdfExporting ? 'Finalized' : 'Editable in Draft'})</h3>
+      <h3 className="text-lg font-semibold pt-4 border-t">Non-Conformity Details (Editable in Draft)</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Date Raised */}
@@ -199,8 +180,8 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
       {/* Non-Conformity Details */}
       {renderStandardInput('nonConformityDetails', 'Non-Conformity Details', 'textarea', 'Describe the non-conformity...')}
 
-      {/* Admin Actions (Locking Mechanism) - Hide in PDF mode */}
-      {!isPdfExporting && isAdmin && report.status === 'Draft' && (
+      {/* Admin Actions (Locking Mechanism) */}
+      {isAdmin && report.status === 'Draft' && (
         <div className="pt-4 border-t flex items-center space-x-4">
           <Button
             onClick={handleLockSection}
@@ -215,8 +196,8 @@ const Section1Details: React.FC<Section1DetailsProps> = ({ report, onUpdate, isE
         </div>
       )}
       
-      {/* Display locked status for users - Hide in PDF mode */}
-      {!isPdfExporting && !isEditable && report.status !== 'Draft' && (
+      {/* Display locked status for users */}
+      {!isEditable && report.status !== 'Draft' && (
         <p className="text-sm text-green-600 font-medium">Section 1 is finalized and locked.</p>
       )}
     </div>

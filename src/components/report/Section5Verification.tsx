@@ -9,13 +9,12 @@ interface SectionProps {
   report: NCARReport;
   onUpdate: (report: NCARReport) => void;
   isEditable: boolean;
-  isPdfExporting: boolean;
 }
 
 const VERIFICATION_STEPS: Array<keyof NCARReport['section5']> = ['step1', 'step2'];
 const DEFAULT_STEP: VerificationStep = { result: '', details: '' };
 
-const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
+const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEditable }) => {
   const { approvedBy } = report.section5;
 
   const handleStepChange = (stepKey: keyof NCARReport['section5'], field: keyof VerificationStep, value: string) => {
@@ -52,22 +51,6 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
     // Safely access step data, defaulting to an empty structure if missing
     const stepData = report.section5[stepKey as 'step1' | 'step2'] || DEFAULT_STEP;
     
-    if (isPdfExporting) {
-        // Use a simple block layout for PDF to ensure content flows and breaks correctly
-        return (
-            <div key={stepKey} className="grid grid-cols-3 border-b border-gray-300 dark:border-gray-700 break-inside-avoid">
-                {/* Result Column (1/3 width) */}
-                <div className="p-1 border-r border-gray-300 dark:border-gray-700">
-                    <PdfTextDisplay value={stepData.result} className="!p-0 !border-none !bg-transparent !text-xs" />
-                </div>
-                {/* Details Column (2/3 width) */}
-                <div className="col-span-2 p-1">
-                    <PdfTextDisplay value={stepData.details} className="!p-0 !border-none !bg-transparent !text-xs" />
-                </div>
-            </div>
-        );
-    }
-
     // Standard UI view
     return (
       <div key={stepKey} className="grid grid-cols-12 gap-4 items-start">
@@ -98,31 +81,16 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
     );
   };
 
-  // PDF Header for the table - now plain text/border
-  const renderPdfHeader = () => (
-    <div className="grid grid-cols-3 bg-gray-100 text-foreground font-bold text-center text-xs border-b border-gray-400">
-        <div className="pt-1 pb-0.5 px-1 border-r border-gray-400">Verification Result</div>
-        <div className="col-span-2 pt-1 pb-0.5 px-1">Verification Details/Remarks</div>
-    </div>
-  );
-
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        {!isPdfExporting && <h4 className="text-lg font-semibold">Verification Log</h4>}
+        <h4 className="text-lg font-semibold">Verification Log</h4>
         
-        {isPdfExporting ? (
-            <div className="border border-gray-300 dark:border-gray-700">
-                {renderPdfHeader()}
-                {VERIFICATION_STEPS.map((stepKey, index) => renderVerificationRow(stepKey, index))}
-            </div>
-        ) : (
-            <div className="space-y-4">
-                {VERIFICATION_STEPS.map((stepKey, index) => renderVerificationRow(stepKey, index))}
-            </div>
-        )}
+        <div className="space-y-4">
+            {VERIFICATION_STEPS.map((stepKey, index) => renderVerificationRow(stepKey, index))}
+        </div>
         
-        {!isEditable && !isPdfExporting && (
+        {!isEditable && (
             <p className="text-sm text-muted-foreground">Verification steps are read-only.</p>
         )}
       </div>

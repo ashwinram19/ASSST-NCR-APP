@@ -9,10 +9,9 @@ interface SectionProps {
   report: NCARReport;
   onUpdate: (report: NCARReport) => void;
   isEditable: boolean;
-  isPdfExporting: boolean;
 }
 
-const Section4RootCauseAnalysis: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
+const Section4RootCauseAnalysis: React.FC<SectionProps> = ({ report, onUpdate, isEditable }) => {
   const handleInputChange = (field: keyof NCARReport['section4'], value: string) => {
     if (!isEditable) return;
     onUpdate({
@@ -26,15 +25,6 @@ const Section4RootCauseAnalysis: React.FC<SectionProps> = ({ report, onUpdate, i
 
   const renderField = (field: keyof NCARReport['section4'], label: string, type: 'text' | 'date' | 'textarea') => {
     const currentValue = report.section4[field];
-
-    if (isPdfExporting) {
-        return (
-            <div className="space-y-2">
-                <Label>{label}</Label>
-                <PdfTextDisplay value={currentValue} />
-            </div>
-        );
-    }
 
     const InputComponent = type === 'textarea' ? Textarea : Input;
     const inputProps = {
@@ -50,7 +40,13 @@ const Section4RootCauseAnalysis: React.FC<SectionProps> = ({ report, onUpdate, i
     return (
         <div className="space-y-2">
             <Label htmlFor={field}>{label}</Label>
-            <InputComponent {...inputProps} />
+            {
+                !isEditable && type !== 'date' ? (
+                    <PdfTextDisplay value={currentValue} />
+                ) : (
+                    <InputComponent {...inputProps} />
+                )
+            }
         </div>
     );
   };

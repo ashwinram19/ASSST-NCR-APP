@@ -9,10 +9,9 @@ interface SectionProps {
   report: NCARReport;
   onUpdate: (report: NCARReport) => void;
   isEditable: boolean;
-  isPdfExporting: boolean;
 }
 
-const Section3CorrectiveAction: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
+const Section3CorrectiveAction: React.FC<SectionProps> = ({ report, onUpdate, isEditable }) => {
   const handleInputChange = (field: keyof NCARReport['section3'], value: string) => {
     if (!isEditable) return;
     onUpdate({
@@ -26,15 +25,6 @@ const Section3CorrectiveAction: React.FC<SectionProps> = ({ report, onUpdate, is
 
   const renderField = (field: keyof NCARReport['section3'], label: string, type: 'text' | 'date' | 'textarea') => {
     const currentValue = report.section3[field];
-
-    if (isPdfExporting) {
-        return (
-            <div className="space-y-2">
-                <Label>{label}</Label>
-                <PdfTextDisplay value={currentValue} />
-            </div>
-        );
-    }
 
     const InputComponent = type === 'textarea' ? Textarea : Input;
     const inputProps = {
@@ -50,7 +40,13 @@ const Section3CorrectiveAction: React.FC<SectionProps> = ({ report, onUpdate, is
     return (
         <div className="space-y-2">
             <Label htmlFor={field}>{label}</Label>
-            <InputComponent {...inputProps} />
+            {
+                !isEditable && type !== 'date' ? (
+                    <PdfTextDisplay value={currentValue} />
+                ) : (
+                    <InputComponent {...inputProps} />
+                )
+            }
         </div>
     );
   };
