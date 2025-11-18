@@ -239,7 +239,7 @@ const NCARReportPdfDocument: React.FC<NCARReportPdfDocumentProps> = ({ report })
                          'Root Cause Analysis';
     
     return (
-      <View break>
+      <View minPresenceAhead={100}>
         <Text style={styles.sectionTitle}>{title}</Text>
         <View style={styles.gridContainer}>
           <PdfLabelValue 
@@ -269,7 +269,7 @@ const NCARReportPdfDocument: React.FC<NCARReportPdfDocumentProps> = ({ report })
     const VERIFICATION_STEPS: Array<keyof NCARReport['section5']> = ['step1', 'step2'];
     
     return (
-      <View break>
+      <View minPresenceAhead={100}>
         <Text style={styles.sectionTitle}>Section 6: Verification of Implementation and Effectiveness</Text>
         
         <Text style={styles.subSectionTitle}>Verification Log</Text>
@@ -308,7 +308,7 @@ const NCARReportPdfDocument: React.FC<NCARReportPdfDocumentProps> = ({ report })
     const attachments = report.section6.attachmentNotes.split('\n').map(s => s.trim()).filter(s => s.length > 0);
     
     return (
-      <View break>
+      <View minPresenceAhead={100}>
         <Text style={styles.sectionTitle}>Section 5: Attachments / Verification Notes</Text>
         
         <Text style={styles.subSectionTitle}>Attachment Notes</Text>
