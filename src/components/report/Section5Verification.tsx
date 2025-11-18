@@ -12,7 +12,7 @@ interface SectionProps {
   isPdfExporting: boolean;
 }
 
-const VERIFICATION_STEPS: Array<keyof NCARReport['section5']> = ['step1', 'step2', 'step3'];
+const VERIFICATION_STEPS: Array<keyof NCARReport['section5']> = ['step1', 'step2'];
 const DEFAULT_STEP: VerificationStep = { result: '', details: '' };
 
 const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEditable, isPdfExporting }) => {
@@ -22,14 +22,14 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
     if (!isEditable) return;
     
     // Ensure stepKey is one of the fixed steps
-    if (!VERIFICATION_STEPS.includes(stepKey as 'step1' | 'step2' | 'step3')) return;
+    if (!VERIFICATION_STEPS.includes(stepKey as 'step1' | 'step2')) return;
 
     onUpdate({
       ...report,
       section5: {
         ...report.section5,
         [stepKey]: {
-            ...report.section5[stepKey as 'step1' | 'step2' | 'step3'],
+            ...report.section5[stepKey as 'step1' | 'step2'],
             [field]: value,
         },
       },
@@ -50,7 +50,7 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
 
   const renderVerificationRow = (stepKey: keyof NCARReport['section5'], index: number) => {
     // Safely access step data, defaulting to an empty structure if missing
-    const stepData = report.section5[stepKey as 'step1' | 'step2' | 'step3'] || DEFAULT_STEP;
+    const stepData = report.section5[stepKey as 'step1' | 'step2'] || DEFAULT_STEP;
     
     if (isPdfExporting) {
         // Use a simple block layout for PDF to ensure content flows and breaks correctly

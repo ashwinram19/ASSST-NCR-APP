@@ -55,11 +55,10 @@ export type NCARReport = {
     approvedBy: string; // New field
   };
   
-  // Section 5: Verification (Fixed 3 steps)
+  // Section 5: Verification (Fixed 2 steps)
   section5: {
     step1: VerificationStep;
     step2: VerificationStep;
-    step3: VerificationStep;
     dateVerified: string;
     approvedBy: string; // Removed reviewedBy
   };
@@ -82,13 +81,12 @@ export const loadReports = (): NCARReport[] => {
       // Safely destructure and omit qmsClauseReference if it exists in old data
       const { qmsClauseReference, ...restSection1 } = report.section1 || {};
       
-      // Migration for section5 structure (from dynamic array verificationItems to fixed 3 steps)
+      // Migration for section5 structure (from dynamic array verificationItems to fixed 2 steps)
       let section5Data: NCARReport['section5'];
       
       const defaultSection5: NCARReport['section5'] = {
           step1: defaultVerificationStep,
           step2: defaultVerificationStep,
-          step3: defaultVerificationStep,
           dateVerified: '',
           approvedBy: '',
       };
@@ -100,7 +98,6 @@ export const loadReports = (): NCARReport[] => {
               section5Data = {
                   step1: items[0] || defaultVerificationStep,
                   step2: items[1] || defaultVerificationStep,
-                  step3: items[2] || defaultVerificationStep,
                   dateVerified: report.section5.dateVerified || '',
                   approvedBy: report.section5.approvedBy || '',
               };
@@ -109,7 +106,6 @@ export const loadReports = (): NCARReport[] => {
               section5Data = {
                   step1: report.section5.step1 || defaultVerificationStep,
                   step2: report.section5.step2 || defaultVerificationStep,
-                  step3: report.section5.step3 || defaultVerificationStep,
                   dateVerified: report.section5.dateVerified || '',
                   approvedBy: report.section5.approvedBy || '',
               };

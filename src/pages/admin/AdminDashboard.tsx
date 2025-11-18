@@ -190,10 +190,9 @@ const AdminDashboard = () => {
       section5: { 
         step1: { result: '', details: '' },
         step2: { result: '', details: '' },
-        step3: { result: '', details: '' },
         dateVerified: '', 
         approvedBy: '' 
-      }, // Updated initialization to fixed 3 steps
+      }, // Updated initialization to fixed 2 steps
       section6: { attachmentNotes: '' }, // Initialize new section
     };
 
