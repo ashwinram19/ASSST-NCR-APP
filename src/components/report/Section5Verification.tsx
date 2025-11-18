@@ -15,7 +15,7 @@ const VERIFICATION_STEPS: Array<keyof NCARReport['section5']> = ['step1', 'step2
 const DEFAULT_STEP: VerificationStep = { result: '', details: '' };
 
 const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEditable }) => {
-  const { approvedBy } = report.section5;
+  const { approvedBySignature, approvedByTimestamp } = report.section5;
 
   const handleStepChange = (stepKey: keyof NCARReport['section5'], field: keyof VerificationStep, value: string) => {
     if (!isEditable) return;
@@ -37,12 +37,16 @@ const Section5Verification: React.FC<SectionProps> = ({ report, onUpdate, isEdit
 
   // Renders the combined approval sentence
   const renderApprovalStamp = () => {
-    const approvalText = approvedBy || 'Pending Verification Approval';
-
     return (
-        <div className="space-y-2 col-span-2">
-            <Label>Verification Approval</Label>
-            <PdfTextDisplay value={approvalText} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+                <Label>Approved By</Label>
+                <PdfTextDisplay value={approvedBySignature || 'Pending Approval'} />
+            </div>
+            <div className="space-y-2">
+                <Label>Date & Time</Label>
+                <PdfTextDisplay value={approvedByTimestamp || 'N/A'} />
+            </div>
         </div>
     );
   };

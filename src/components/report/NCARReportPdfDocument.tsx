@@ -294,10 +294,14 @@ const NCARReportPdfDocument: React.FC<NCARReportPdfDocumentProps> = ({ report })
         
         <View style={styles.gridContainer}>
           <PdfLabelValue 
-            label="Verification Approval" 
-            value={report.section5.approvedBy || 'Pending Verification Approval'} 
-            width="full"
-            multiline
+            label="Approved By" 
+            value={report.section5.approvedBySignature || 'Pending Approval'} 
+            width="half"
+          />
+          <PdfLabelValue 
+            label="Date & Time" 
+            value={report.section5.approvedByTimestamp || 'N/A'} 
+            width="half"
           />
         </View>
       </View>

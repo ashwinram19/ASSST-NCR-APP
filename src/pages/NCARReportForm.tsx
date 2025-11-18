@@ -118,19 +118,22 @@ const NCARReportForm = () => {
     if (!report || !isAdmin || report.status !== 'SubmittedForVerification') return;
 
     const now = new Date();
-    const datePart = now.toISOString().split('T')[0]; // YYYY-MM-DD
-    const timePart = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    const formattedDate = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     
-    const approvalSentence = `At ${timePart} on ${formattedDate}, this document is approved by QMS Admin.`;
+    // Format: 8:34am 18Nov25
+    const timePart = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase().replace(' ', '');
+    const day = now.getDate();
+    const month = now.toLocaleDateString('en-US', { month: 'short' });
+    const year = now.getFullYear().toString().slice(-2);
+    const formattedTimestamp = `${timePart} ${day}${month}${year}`;
 
     const verifiedReport = {
       ...report,
       status: 'Verified' as ReportStatus,
       section5: {
         ...report.section5,
-        dateVerified: datePart, // Keep dateVerified for data consistency, though display uses the sentence
-        approvedBy: approvalSentence, // Store the full sentence here
+        dateVerified: now.toISOString().split('T')[0], // Keep dateVerified for data consistency
+        approvedBySignature: 'QMS Admin', // Auto-generated signature
+        approvedByTimestamp: formattedTimestamp, // Auto-generated timestamp
       }
     };
     handleUpdateReport(verifiedReport);

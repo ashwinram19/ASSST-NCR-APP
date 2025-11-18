@@ -60,7 +60,8 @@ export type NCARReport = {
     step1: VerificationStep;
     step2: VerificationStep;
     dateVerified: string;
-    approvedBy: string; // Removed reviewedBy
+    approvedBySignature: string; // NEW: Stores 'QMS Admin' or similar
+    approvedByTimestamp: string; // NEW: Stores formatted date & time
   };
 
   // Section 6: Attachments (Admin Only Edit)
@@ -88,10 +89,26 @@ export const loadReports = (): NCARReport[] => {
           step1: defaultVerificationStep,
           step2: defaultVerificationStep,
           dateVerified: '',
-          approvedBy: '',
+          approvedBySignature: '', // Initialize new field
+          approvedByTimestamp: '', // Initialize new field
       };
 
       if (report.section5) {
+          // Handle migration from old single 'approvedBy' string to new fields
+          let signature = '';
+          let timestamp = '';
+          
+          // If the old 'approvedBy' field exists and is a string (from previous versions)
+          if (typeof report.section5.approvedBy === 'string' && report.section5.approvedBy.length > 0) {
+              // Since we can't reliably parse the old sentence back into components, we'll just mark it as approved by Admin
+              signature = 'QMS Admin (Migrated)';
+              timestamp = report.section5.dateVerified || ''; // Use dateVerified as a fallback timestamp
+          } else {
+              // Use new fields if they exist, otherwise use defaults
+              signature = report.section5.approvedBySignature || '';
+              timestamp = report.section5.approvedByTimestamp || '';
+          }
+
           // Check if old dynamic structure exists (verificationItems)
           if (Array.isArray(report.section5.verificationItems)) {
               const items = report.section5.verificationItems;
@@ -99,7 +116,8 @@ export const loadReports = (): NCARReport[] => {
                   step1: items[0] || defaultVerificationStep,
                   step2: items[1] || defaultVerificationStep,
                   dateVerified: report.section5.dateVerified || '',
-                  approvedBy: report.section5.approvedBy || '',
+                  approvedBySignature: signature,
+                  approvedByTimestamp: timestamp,
               };
           } else {
               // Assume new fixed structure or initialize from scratch
@@ -107,7 +125,8 @@ export const loadReports = (): NCARReport[] => {
                   step1: report.section5.step1 || defaultVerificationStep,
                   step2: report.section5.step2 || defaultVerificationStep,
                   dateVerified: report.section5.dateVerified || '',
-                  approvedBy: report.section5.approvedBy || '',
+                  approvedBySignature: signature,
+                  approvedByTimestamp: timestamp,
               };
           }
       } else {
